@@ -12,11 +12,12 @@ import org.serverct.ersha.dungeon.internal.dungeon.Dungeon
 import taboolib.module.chat.colored
 
 @AutoRegister
-class DungeonLimitScript : BasicActionScript() {
+class DungeonSetLimitScript : BasicActionScript(false) {
 
     override val type: Array<ScriptType> = arrayOf(ScriptType.SYSTEM)
-
     override val key: String = "limit-condition"
+    override val mandatorySync: Boolean = false
+
 
     override val description: ActionScriptDescription = ActionScriptDescription("进入地牢次数限制")
         .type(*type)
@@ -25,8 +26,8 @@ class DungeonLimitScript : BasicActionScript() {
         .append("message", "未满足后发送的信息", true)
 
 
-    private var value = 1
-    private var message = "&4| &8系统 &7-> &e%player_name% &c的进入次数不足"
+    var value = 1
+    var message = "&4| &8系统 &7-> &e%player_name% &c的进入次数不足"
 
 
     override fun init(dungeon: Dungeon, parameter: Map<String, String>): DungeonActionScript {
@@ -34,7 +35,6 @@ class DungeonLimitScript : BasicActionScript() {
         message = parameter["message"].toString()
         return this
     }
-
 
     override fun conditionScript(dungeon: Dungeon, scriptType: ScriptType): Boolean {
         var var1 = false

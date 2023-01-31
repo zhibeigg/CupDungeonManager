@@ -5,7 +5,6 @@ import com.github.cupdungeonmanager.limit.LimitManager
 import com.github.cupdungeonmanager.limit.PlayerDailyLimit
 import com.github.cupdungeonmanager.limit.storage.Storage
 import org.bukkit.Bukkit
-import org.serverct.ersha.dungeon.DungeonPlus
 import taboolib.common.platform.ProxyCommandSender
 import taboolib.common.platform.command.CommandBody
 import taboolib.common.platform.command.CommandHeader
@@ -39,7 +38,6 @@ object Command {
             suggestion<ProxyCommandSender> { _, _ -> Bukkit.getOnlinePlayers().map { it.name } }
 
             dynamic("dungeon") {
-                suggestion<ProxyCommandSender> { _, _ -> DungeonPlus.dungeonManager.getDungeons().map { it.dungeonName } }
 
                 dynamic("value") {
                     execute<ProxyCommandSender> { sender, context, argument ->
@@ -59,7 +57,6 @@ object Command {
             suggestion<ProxyCommandSender> { _, _ -> Bukkit.getOnlinePlayers().map { it.name } }
 
             dynamic("dungeon") {
-                suggestion<ProxyCommandSender> { _, _ -> DungeonPlus.dungeonManager.getDungeons().map { it.dungeonName } }
 
                 dynamic("value") {
                     execute<ProxyCommandSender> { sender, context, argument ->
@@ -79,7 +76,6 @@ object Command {
             suggestion<ProxyCommandSender> { _, _ -> Bukkit.getOnlinePlayers().map { it.name } }
 
             dynamic("dungeon") {
-                suggestion<ProxyCommandSender> { _, _ -> DungeonPlus.dungeonManager.getDungeons().map { it.dungeonName } }
 
                 dynamic("value") {
                     execute<ProxyCommandSender> { sender, context, argument ->
