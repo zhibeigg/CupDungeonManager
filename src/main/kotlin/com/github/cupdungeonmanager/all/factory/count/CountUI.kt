@@ -1,18 +1,27 @@
 package com.github.cupdungeonmanager.all.factory.count
 
+import com.github.cupdungeonmanager.CupDungeonManager.config
 import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
+import org.bukkit.entity.Entity
+import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.serverct.ersha.dungeon.DungeonPlus
 import taboolib.library.configuration.ConfigurationSection
 import taboolib.library.xseries.getItemStack
+import taboolib.module.chat.colored
+import taboolib.module.nms.ItemTag
+import taboolib.module.nms.getItemTag
+import taboolib.module.nms.setItemTag
 import taboolib.module.ui.openMenu
 import taboolib.module.ui.type.Basic
 import taboolib.platform.util.buildItem
+import taboolib.platform.util.getMeta
 import taboolib.platform.util.sendLang
+import taboolib.platform.util.setMeta
 
 class CountUI(val viewer: Player) {
 
@@ -53,6 +62,8 @@ class CountUI(val viewer: Player) {
 
     }
 
+    var mubei: Entity? = null
+
     fun open() {
         viewer.openMenu<Basic>(title) {
             rows(rows)
@@ -76,9 +87,8 @@ class CountUI(val viewer: Player) {
             info.forEach {
                 set(it, infoItem)
             }
-            val teamItem = getPapiLore(teamIcon)
-            info.forEach {
-                set(it, teamItem)
+            team.forEachIndexed { index, i ->
+                set(i, getTeam(teamIcon, index))
             }
             onClick { event ->
                 event.isCancelled = true
@@ -87,7 +97,11 @@ class CountUI(val viewer: Player) {
                     if (factory.get() > 0) {
                         factory.reduce(1)
                         viewer.gameMode = GameMode.SURVIVAL
+                        mubei?.remove()
                         viewer.sendLang("use-count", viewer.displayName)
+                        getTeamPlayer().forEach {
+                            it.sendLang("use-count", viewer.displayName)
+                        }
                         viewer.closeInventory()
                     } else {
                         viewer.sendLang("use-count-not-enough", viewer.displayName, factory.get())
@@ -110,8 +124,31 @@ class CountUI(val viewer: Player) {
                 if (info.contains(event.rawSlot)) {
                     viewer.closeInventory()
                 }
+                if (team.contains(event.rawSlot)) {
+                    val name = event.currentItem?.getItemTag()?.get("team")?.asString()
+                    if (name != null) {
+                        val player = Bukkit.getPlayerExact(name)!!
+                        if (factory.get() > 1) {
+                            factory.reduce(2)
+                            player.gameMode = GameMode.SURVIVAL
+                            player.getNearbyEntities(1000.0,1000.0,1000.0).forEach {
+                                if (it.getMeta("team").toString() == player.name) {
+                                    it.remove()
+                                }
+                            }
+                            viewer.sendLang("use-count-team", viewer.displayName, player.displayName)
+                            getTeamPlayer().forEach {
+                                it.sendLang("use-count-team", viewer.displayName, player.displayName)
+                            }
+                            player.closeInventory()
+                        } else {
+                            viewer.sendLang("use-count-not-enough", viewer.displayName, factory.get())
+                        }
+                    } else {
+                        viewer.sendLang("team-not", viewer.displayName)
+                    }
+                }
             }
-
         }
     }
 
@@ -128,7 +165,9 @@ class CountUI(val viewer: Player) {
     fun getTeamPlayer(): MutableList<Player> {
         val players = mutableListOf<Player>()
         DungeonPlus.teamManager.getTeam(viewer)?.team?.players?.forEach {
-            players.add(Bukkit.getPlayer(it)!!)
+            if (Bukkit.getPlayer(it)!! != viewer) {
+                players.add(Bukkit.getPlayer(it)!!)
+            }
         }
         return players
     }
@@ -140,6 +179,23 @@ class CountUI(val viewer: Player) {
             lore.clear()
             lore.addAll(papi)
         }
+    }
+
+    fun getTeam(item: ItemStack, number: Int): ItemStack {
+        val player = getTeamPlayer()[number]
+        return buildItem(item) {
+            name = name?.replace("{name}", player.displayName)
+            val papi = PlaceholderAPI.setPlaceholders(player, lore)
+            lore.clear()
+            lore.addAll(papi)
+        }.setItemTag(ItemTag().put("team", player.name).asCompound())
+
+    }
+    fun mubei() {
+        val entity = viewer.world.spawnEntity(viewer.location.add(0.0, 0.0, 0.0), EntityType.ARMOR_STAND)
+        entity.isGlowing = true
+        entity.customName = PlaceholderAPI.setPlaceholders(viewer, config.getString("name") ?: "%player_name% 的亡魂".colored())
+        entity.setMeta("team", viewer.name)
     }
 
 }

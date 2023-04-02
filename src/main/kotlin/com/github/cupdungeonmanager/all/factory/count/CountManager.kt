@@ -1,17 +1,24 @@
 package com.github.cupdungeonmanager.all.factory.count
 
-import com.github.cupdungeonmanager.CupDungeonManager.config
-import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.GameMode
+import org.bukkit.event.player.PlayerGameModeChangeEvent
+import org.serverct.ersha.dungeon.DungeonPlus
 import taboolib.common.platform.event.SubscribeEvent
-import taboolib.module.ui.type.Basic
 
 object CountManager {
 
     @SubscribeEvent
-    fun e(e: PlayerDeathEvent) {
-        val player = e.entity
-        val ui = Basic(config.getString("复活界面") ?: "炁之复活")
-        ui.
+    fun e(e: PlayerGameModeChangeEvent) {
+        val player = e.player
+        val world = player.world
+        val manager = DungeonPlus.dungeonManager
+        if (manager.isDungeonWorld(world)) {
+            if (e.newGameMode == GameMode.SPECTATOR) {
+                val ui = CountUI(player)
+                ui.open()
+                ui.mubei()
+            }
+        }
     }
 
 }

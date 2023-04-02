@@ -29,3 +29,4 @@ limit:
   Atlas: 1
 
 count: 1
+name: "%player_name% 的亡魂"
