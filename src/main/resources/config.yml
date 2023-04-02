@@ -1,5 +1,9 @@
 debug: false
 
+
+#%CupDungeonManager_count%          复活币
+#%CupDungeonManager_limit_dungeon%  副本限制次数
+
 database:
   use: LOCAL # LOCAL,MYSQL(没写)
   sql:
@@ -30,3 +34,65 @@ limit:
 
 count: 1
 name: "%player_name% 的亡魂"
+
+#地牢内玩家可以使用的免费复活次数 (未设置的副本则视为0):
+DungeonsReviveFreeTimes:
+  anying: 3
+  binghuo: 1
+  boos1: 5
+  dixing: 1
+  fengling: 1
+  fire: 3
+  fuxi: 3
+  guangming: 5
+  guanyu: 3
+  guodu: 3
+  haimu: 3
+  juqingguodu: 999
+  keng: 2
+  leishendian: 3
+  lianyu: 3
+  luanji: 3
+  mohai: 3
+  pig_fb: 1
+  shenpan: 3
+  tiandun: 3
+  water: 3
+  xfj: 3
+  yueling: 3
+  Ozruk: 20
+  Jokull: 20
+  Bhunivelze: 20
+  KelThuzad: 20
+  Amalgam: 20
+  Cenarius: 20
+  Exodus: 20
+  Atlas: 20
+
+
+#地牢内每个玩家可以使用复活币的最大次数 (未设置的副本则视为无限制):
+DungeonsReviveLimit:
+  anying: 3
+  binghuo: 3
+  boos1: 5
+  dixing: 3
+  fengling: 3
+  fire: 3
+  fuxi: 3
+  guangming: 5
+  guanyu: 3
+  guodu: 3
+  haimu: 3
+  juqingguodu: 999
+  keng: 3
+  leishendian: 3
+  lianyu: 3
+  luanji: 3
+  mohai: 3
+  pig_fb: 3
+  shenpan: 3
+  tiandun: 3
+  water: 3
+  xfj: 3
+  yueling: 3
+

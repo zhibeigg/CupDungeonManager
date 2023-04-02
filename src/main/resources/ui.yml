@@ -14,14 +14,19 @@ revive:
     name: '{name}的个人信息'
     material: NAME_TAG
     lore:
+      - "复活币数量: %CupDungeonManager_coin%"
       - ""
-      - ""
-      - ""
-      - ""
+      - "免费复活次数: {freeRevive}"
+      - "复活币复活次数: {revive}"
   team:
     slots: [ 21,22,24,25 ]
     name: '复活 {name}'
     material: NAME_TAG
+    lore:
+      - "免费复活次数: {freeRevive}"
+      - "复活币复活次数: {revive}"
+      - ""
+      - "复活币数量: %CupDungeonManager_coin%"
   icon-#:
     slots: [ 1,2,3,4,6,7,8,9,10,11,13,14,15,17,18,19,20,23,26,27 ]
     material: BLACK_STAINED_GLASS_PANE

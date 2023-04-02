@@ -10,6 +10,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.serverct.ersha.dungeon.DungeonPlus
+import org.serverct.ersha.dungeon.internal.dungeon.Dungeon
 import taboolib.library.configuration.ConfigurationSection
 import taboolib.library.xseries.getItemStack
 import taboolib.module.chat.colored
@@ -64,6 +65,12 @@ class CountUI(val viewer: Player) {
 
     var mubei: Entity? = null
 
+    val dungeon: Dungeon
+        get() = DungeonPlus.dungeonManager.getDungeon(viewer)!!
+
+    var freeRevive = CountManager.DungeonsReviveFreeTimes[dungeon.dungeonName]!!
+    var Revive = CountManager.DungeonsReviveLimit[dungeon.dungeonName]!!
+
     fun open() {
         viewer.openMenu<Basic>(title) {
             rows(rows)
@@ -94,15 +101,29 @@ class CountUI(val viewer: Player) {
                 event.isCancelled = true
                 val factory = PlayerCount(viewer)
                 if (revive.contains(event.rawSlot)) {
-                    if (factory.get() > 0) {
-                        factory.reduce(1)
+                    if (freeRevive > 0) {
                         viewer.gameMode = GameMode.SURVIVAL
+                        freeRevive -= 1
                         mubei?.remove()
-                        viewer.sendLang("use-count", viewer.displayName)
+                        viewer.sendLang("revive", viewer.displayName, freeRevive)
                         getTeamPlayer().forEach {
-                            it.sendLang("use-count", viewer.displayName)
+                            it.sendLang("revive", viewer.displayName, freeRevive)
                         }
                         viewer.closeInventory()
+                    } else if (factory.get() > 0) {
+                        if (Revive > 0) {
+                            factory.reduce(1)
+                            Revive -= 1
+                            viewer.gameMode = GameMode.SURVIVAL
+                            mubei?.remove()
+                            viewer.sendLang("use-count", viewer.displayName)
+                            getTeamPlayer().forEach {
+                                it.sendLang("use-count", viewer.displayName)
+                            }
+                            viewer.closeInventory()
+                        } else {
+                            viewer.sendLang("revive-not-enough")
+                        }
                     } else {
                         viewer.sendLang("use-count-not-enough", viewer.displayName, factory.get())
                     }
@@ -129,18 +150,23 @@ class CountUI(val viewer: Player) {
                     if (name != null) {
                         val player = Bukkit.getPlayerExact(name)!!
                         if (factory.get() > 1) {
-                            factory.reduce(2)
-                            player.gameMode = GameMode.SURVIVAL
-                            player.getNearbyEntities(1000.0,1000.0,1000.0).forEach {
-                                if (it.getMeta("team").toString() == player.name) {
-                                    it.remove()
+                            if (Revive > 0) {
+                                Revive -= 1
+                                factory.reduce(2)
+                                player.gameMode = GameMode.SURVIVAL
+                                player.getNearbyEntities(1000.0,1000.0,1000.0).forEach {
+                                    if (it.getMeta("team").toString() == player.name) {
+                                        it.remove()
+                                    }
                                 }
+                                viewer.sendLang("use-count-team", viewer.displayName, player.displayName)
+                                getTeamPlayer().forEach {
+                                    it.sendLang("use-count-team", viewer.displayName, player.displayName)
+                                }
+                                player.closeInventory()
+                            } else {
+                                viewer.sendLang("revive-not-enough")
                             }
-                            viewer.sendLang("use-count-team", viewer.displayName, player.displayName)
-                            getTeamPlayer().forEach {
-                                it.sendLang("use-count-team", viewer.displayName, player.displayName)
-                            }
-                            player.closeInventory()
                         } else {
                             viewer.sendLang("use-count-not-enough", viewer.displayName, factory.get())
                         }
@@ -178,6 +204,10 @@ class CountUI(val viewer: Player) {
             val papi = PlaceholderAPI.setPlaceholders(viewer, lore)
             lore.clear()
             lore.addAll(papi)
+            lore.forEachIndexed { index, s ->
+                lore[index] = s.replace("{revive}", Revive.toString()).replace("{freeRevive}", freeRevive.toString())
+            }
+            colored()
         }
     }
 
@@ -188,6 +218,7 @@ class CountUI(val viewer: Player) {
             val papi = PlaceholderAPI.setPlaceholders(player, lore)
             lore.clear()
             lore.addAll(papi)
+            colored()
         }.setItemTag(ItemTag().put("team", player.name).asCompound())
 
     }
@@ -196,6 +227,7 @@ class CountUI(val viewer: Player) {
         entity.isGlowing = true
         entity.customName = PlaceholderAPI.setPlaceholders(viewer, config.getString("name") ?: "%player_name% 的亡魂".colored())
         entity.setMeta("team", viewer.name)
+        entity.isInvulnerable = true
     }
 
 }
