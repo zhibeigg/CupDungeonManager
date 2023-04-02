@@ -1,0 +1,28 @@
+revive:
+  title: '&6炁之复活'
+  rows: 3
+  revive:
+    slots: [ 12 ]
+    name: '复活'
+    material: NAME_TAG
+  giveUP:
+    slots: [ 16 ]
+    name: '放弃复活'
+    material: NAME_TAG
+  info:
+    slots: [ 5 ]
+    name: '{name}的个人信息'
+    material: NAME_TAG
+    lore:
+      - ""
+      - ""
+      - ""
+      - ""
+  team:
+    slots: [ 21,22,23,24,25 ]
+    name: '复活 {name}'
+    material: NAME_TAG
+  icon-#:
+    slots: [ 1,2,3,4,6,7,8,9,10,11,13,14,15,17,18,19,20,26,27 ]
+    material: BLACK_STAINED_GLASS_PANE
+    name: ''

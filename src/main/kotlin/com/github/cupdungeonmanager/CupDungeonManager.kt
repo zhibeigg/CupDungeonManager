@@ -2,10 +2,8 @@ package com.github.cupdungeonmanager
 
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
-import org.serverct.ersha.dungeon.DungeonPlus
 import taboolib.common.platform.Plugin
 import taboolib.common.platform.function.disablePlugin
-import taboolib.common.platform.function.info
 import taboolib.module.configuration.Config
 import taboolib.module.configuration.Configuration
 

@@ -1,6 +1,7 @@
-package com.github.cupdungeonmanager.limit
+package com.github.cupdungeonmanager.all.script
 
-import com.github.cupdungeonmanager.limit.storage.Storage
+import com.github.cupdungeonmanager.all.factory.limit.PlayerLimit
+import com.github.cupdungeonmanager.all.storage.Storage
 import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.Bukkit
 import org.serverct.ersha.dungeon.common.api.annotation.AutoRegister
@@ -55,7 +56,7 @@ class DungeonSetLimitScript : BasicActionScript(false) {
             dungeon.team.players.forEach {
                 val player = Bukkit.getPlayer(it)
                 if (player!=null) {
-                    PlayerDailyLimit(player).reduce(value, dungeon.dungeonName)
+                    PlayerLimit(player).reduce(value, dungeon.dungeonName)
                 }
             }
         }

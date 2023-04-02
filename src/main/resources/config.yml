@@ -9,6 +9,9 @@ database:
     password: 123456
     database: bukkit_plugin
 
+#示范
+#limit-condition{value=1;message=&4| &8系统 &7-> &e%player_name% &c的进入次数不足} @system
+
 limit:
   fire: 10
   water: 10
@@ -24,3 +27,5 @@ limit:
   Cenarius: 1
   Exodus: 1
   Atlas: 1
+
+count: 1
