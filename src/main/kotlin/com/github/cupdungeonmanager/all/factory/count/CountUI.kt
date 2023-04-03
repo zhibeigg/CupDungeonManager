@@ -12,6 +12,7 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.serverct.ersha.dungeon.DungeonPlus
+import org.serverct.ersha.dungeon.common.api.event.dungeon.enums.EndType
 import org.serverct.ersha.dungeon.internal.dungeon.Dungeon
 import taboolib.library.configuration.ConfigurationSection
 import taboolib.library.xseries.getItemStack
@@ -75,7 +76,7 @@ class CountUI(private val viewer: Player) {
         get() = DungeonPlus.dungeonManager.getDungeon(viewer)!!
 
     private var freeRevive = CountManager.DungeonsReviveFreeTimes[dungeon.dungeonName] ?: 0
-    private var noFreeRevive = CountManager.DungeonsReviveLimit[dungeon.dungeonName] ?: 0
+    private var noFreeRevive = CountManager.DungeonsReviveLimit[dungeon.dungeonName] ?: 999
 
     fun build() : Inventory {
         return buildMenu<Basic>(title.colored()) {
@@ -150,8 +151,7 @@ class CountUI(private val viewer: Player) {
                             viewer.spectatorTarget = viewered
                         } else {
                             viewer.closeInventory()
-                            DungeonPlus.dungeonManager.getDungeon(viewer.world)
-                                ?.let { DungeonPlus.dungeonManager.removeDungeon(it) }
+                            DungeonPlus.dungeonManager.getDungeon(viewer.world)?.end(false, EndType.ALL_DEATH)
                         }
                     }
                 }
@@ -261,6 +261,7 @@ class CountUI(private val viewer: Player) {
 
     fun mubei() {
         val entity: ArmorStand = viewer.world.spawnEntity(viewer.location.add(0.0, 0.0, 0.0), EntityType.ARMOR_STAND) as ArmorStand
+        mubei = entity
         entity.isGlowing = true
         entity.isCustomNameVisible = true
         entity.setGravity(false)

@@ -4,11 +4,11 @@ revive:
   revive:
     slots: [ 11 ]
     name: '&a&l复活'
-    material: NAME_TAG
+    material: TOTEM_OF_UNDYING
   giveUP:
     slots: [ 15 ]
     name: '&4&l放弃复活'
-    material: NAME_TAG
+    material: BLAZE_POWDER
   info:
     slots: [ 4 ]
     name: '&e%player_name% &7个人信息'
@@ -19,9 +19,9 @@ revive:
       - "&a免费复活次数: &7| &c{freeRevive} &7|"
       - "&e复活币复活次数: &7| &c{revive} &7|"
   team:
-    slots: [ 20,21,23,24 ]
+    slots: [ 19,21,23,25 ]
     name: '&e复活 &b{name}'
-    material: NAME_TAG
+    material: TOTEM_OF_UNDYING
     lore:
       - "&a免费复活次数: &7| &c{freeRevive} &7|"
       - "&e复活币复活次数: &7| &c{revive} &7|"
@@ -29,10 +29,10 @@ revive:
       - "&6复活币数量: &7| &c%CupDungeonManager_coin% &7|"
   no-team:
     name: '&7|&c空缺&7|'
-    material: NAME_TAG
+    material: BARRIER
     lore:
       - "&7此槽位 &c无队友"
   icon-#:
-    slots: [ 0,1,2,3,5,6,7,8,9,10,12,13,14,16,17,18,19,22,25,26 ]
+    slots: [ 0,1,2,3,5,6,7,8,9,10,12,13,14,16,17,18,20,22,24,26 ]
     material: BLACK_STAINED_GLASS_PANE
     name: ''

@@ -28,7 +28,7 @@ object CountManager {
     fun load() {
         DungeonPlus.dungeonManager.getDungeons().forEach {
             DungeonsReviveFreeTimes[it.dungeonName] = config.getInt("DungeonsReviveFreeTimes.${it.dungeonName}", 0)
-            DungeonsReviveLimit[it.dungeonName] = config.getInt("DungeonsReviveLimit.${it.dungeonName}", 0)
+            DungeonsReviveLimit[it.dungeonName] = config.getInt("DungeonsReviveLimit.${it.dungeonName}", 999)
         }
     }
 
@@ -64,7 +64,11 @@ object CountManager {
         if (manager.isDungeonWorld(world)) {
             val team = e.rightClicked.getMeta("team").toString()
             val death = Bukkit.getPlayerExact(team) ?: return
-            debug("${player}, click mubei")
+            debug("${player}${death}, click mubei")
+            if (player == death) {
+                player.sendLang("do-not-interact-self")
+                return
+            }
             submitAsync {
                 move.remove(player)
                 player.sendTitle("请勿移动!等待三秒", "", 5, 10, 5)
