@@ -24,8 +24,8 @@ revive:
     material: TOTEM_OF_UNDYING
     lore:
       - "&a当前玩家存活状态: &7| %CupDungeonManager_alive% &7"
-      - "&a你的免费复活次数: &7| &c{freeRevive} &7|"
-      - "&e你的复活币复活次数: &7| &c{revive} &7|"
+      - "&a他的免费复活次数: &7| &c{freeRevive} &7|"
+      - "&e他的复活币复活次数: &7| &c{revive} &7|"
       - ""
       - "&6他的复活币数量: &7| &c%CupDungeonManager_coin% &7|"
       - ""

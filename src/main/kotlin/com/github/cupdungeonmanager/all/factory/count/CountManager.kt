@@ -11,6 +11,8 @@ import org.bukkit.event.player.PlayerGameModeChangeEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.serverct.ersha.dungeon.DungeonPlus
+import org.serverct.ersha.dungeon.common.api.event.dungeon.DungeonEndEvent
+import org.serverct.ersha.dungeon.common.api.event.dungeon.DungeonStartEvent
 import taboolib.common.LifeCycle
 import taboolib.common.platform.Awake
 import taboolib.common.platform.event.SubscribeEvent
@@ -22,6 +24,9 @@ object CountManager {
 
     val DungeonsReviveFreeTimes = mutableMapOf<String, Int>()
     val DungeonsReviveLimit = mutableMapOf<String, Int>()
+
+    val freeRevive = mutableMapOf<String, Int>()
+    val noFreeRevive = mutableMapOf<String, Int>()
 
     private val move = mutableListOf<Player>()
 
@@ -44,6 +49,24 @@ object CountManager {
     @SubscribeEvent
     fun e(e: PlayerMoveEvent) {
         move.add(e.player)
+    }
+
+    @SubscribeEvent
+    fun e(e: DungeonStartEvent.Before) {
+        e.dungeon.team.players.forEach {
+            val player = Bukkit.getPlayer(it)!!
+            freeRevive[player.name] = DungeonsReviveFreeTimes[e.dungeon.dungeonName] ?: 0
+            noFreeRevive[player.name] = DungeonsReviveLimit[e.dungeon.dungeonName] ?: 999
+        }
+    }
+
+    @SubscribeEvent
+    fun e(e: DungeonEndEvent.After) {
+        e.dungeon.team.players.forEach {
+            val player = Bukkit.getPlayer(it)!!
+            freeRevive.remove(player.name)
+            noFreeRevive.remove(player.name)
+        }
     }
 
 

@@ -74,9 +74,6 @@ class CountUI(private val viewer: Player) {
     private val dungeon: Dungeon
         get() = DungeonPlus.dungeonManager.getDungeon(viewer)!!
 
-    private var freeRevive = CountManager.DungeonsReviveFreeTimes[dungeon.dungeonName] ?: 0
-    private var noFreeRevive = CountManager.DungeonsReviveLimit[dungeon.dungeonName] ?: 999
-
     fun build() : Inventory {
         return buildMenu<Basic>(title.colored()) {
             rows(rows)
@@ -108,22 +105,22 @@ class CountUI(private val viewer: Player) {
                 event.isCancelled = true
                 val factory = PlayerCount(viewer)
                 if (revive.contains(event.rawSlot)) {
-                    if (freeRevive > 0) {
+                    if (CountManager.freeRevive[viewer.name]!! > 0) {
                         DungeonPlus.dungeonManager.getDungeon(viewer.world)?.revive(viewer,
                             defaultLocation = true,
                             force = true
                         )
-                        freeRevive -= 1
+                        CountManager.freeRevive[viewer.name] = CountManager.freeRevive[viewer.name]!! - 1
                         mubei?.remove()
-                        viewer.sendLang("revive", viewer.displayName, freeRevive)
+                        viewer.sendLang("revive", viewer.displayName, CountManager.freeRevive[viewer.name]!!)
                         getTeamPlayer().forEach {
-                            it.sendLang("revive", viewer.displayName, freeRevive)
+                            it.sendLang("revive", viewer.displayName, CountManager.freeRevive[viewer.name]!!)
                         }
                         viewer.closeInventory()
                     } else if (factory.get() > 0) {
-                        if (noFreeRevive > 0) {
+                        if (CountManager.noFreeRevive[viewer.name]!! > 0) {
                             factory.reduce(1)
-                            noFreeRevive -= 1
+                            CountManager.noFreeRevive[viewer.name] = CountManager.noFreeRevive[viewer.name]!! - 1
                             DungeonPlus.dungeonManager.getDungeon(viewer.world)?.revive(viewer,
                                 defaultLocation = true,
                                 force = true
@@ -162,9 +159,9 @@ class CountUI(private val viewer: Player) {
                     if (name != null) {
                         val player = Bukkit.getPlayerExact(name)!!
                         if (factory.get() > 1) {
-                            if (noFreeRevive > 0) {
+                            if (CountManager.noFreeRevive[viewer.name]!! > 0) {
                                 if (player.gameMode == GameMode.SPECTATOR) {
-                                    noFreeRevive -= 1
+                                    CountManager.noFreeRevive[viewer.name] = CountManager.noFreeRevive[viewer.name]!! - 1
                                     factory.reduce(2)
                                     DungeonPlus.dungeonManager.getDungeon(viewer.world)?.revive(
                                         player,
@@ -228,9 +225,12 @@ class CountUI(private val viewer: Player) {
     fun getPapiLore(item: ItemStack): ItemStack {
         return buildItem(item) {
             name = name?.let { PlaceholderAPI.setPlaceholders(viewer, it) }
-            val new = editLore(viewer, lore)
+            val papi = PlaceholderAPI.setPlaceholders(viewer, lore)
             lore.clear()
-            lore.addAll(new)
+            lore.addAll(papi)
+            lore.forEachIndexed { index, s ->
+                lore[index] = s.replace("{revive}", CountManager.noFreeRevive[viewer.name]!!.toString()).replace("{freeRevive}", CountManager.freeRevive[viewer.name]!!.toString())
+            }
             colored()
         }
     }
@@ -241,9 +241,12 @@ class CountUI(private val viewer: Player) {
         players.forEach { player ->
             val itemAfter = buildItem(item) {
                 name = name?.replace("{name}", player.displayName)
-                val new = editLore(player, lore)
+                val papi = PlaceholderAPI.setPlaceholders(player, lore)
                 lore.clear()
-                lore.addAll(new)
+                lore.addAll(papi)
+                lore.forEachIndexed { index, s ->
+                    lore[index] = s.replace("{revive}", CountManager.noFreeRevive[player.name]!!.toString()).replace("{freeRevive}", CountManager.freeRevive[player.name]!!.toString())
+                }
                 colored()
             }
             val itemTag = itemAfter.getItemTag()
@@ -261,16 +264,6 @@ class CountUI(private val viewer: Player) {
             )
         }
         return items
-    }
-
-    fun editLore(player: Player, lore: ArrayList<String>): ArrayList<String> {
-        val papi = PlaceholderAPI.setPlaceholders(player, lore)
-        lore.clear()
-        lore.addAll(papi)
-        lore.forEachIndexed { index, s ->
-            lore[index] = s.replace("{revive}", noFreeRevive.toString()).replace("{freeRevive}", freeRevive.toString())
-        }
-        return lore
     }
 
     fun mubei() {
