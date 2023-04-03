@@ -22,13 +22,13 @@ import taboolib.platform.util.sendLang
 
 object CountManager {
 
-    val DungeonsReviveFreeTimes = mutableMapOf<String, Int>()
-    val DungeonsReviveLimit = mutableMapOf<String, Int>()
+    private val DungeonsReviveFreeTimes = mutableMapOf<String, Int>()
+    private val DungeonsReviveLimit = mutableMapOf<String, Int>()
 
     val freeRevive = mutableMapOf<String, Int>()
     val noFreeRevive = mutableMapOf<String, Int>()
 
-    private val move = mutableListOf<Player>()
+    private val move = mutableSetOf<Player>()
 
     @Awake(LifeCycle.ACTIVE)
     fun load() {
@@ -57,6 +57,7 @@ object CountManager {
             val player = Bukkit.getPlayer(it)!!
             freeRevive[player.name] = DungeonsReviveFreeTimes[e.dungeon.dungeonName] ?: 0
             noFreeRevive[player.name] = DungeonsReviveLimit[e.dungeon.dungeonName] ?: 999
+            debug(player.name + noFreeRevive[player.name] + "|" + freeRevive[player.name])
         }
     }
 
@@ -66,6 +67,7 @@ object CountManager {
             val player = Bukkit.getPlayer(it)!!
             freeRevive.remove(player.name)
             noFreeRevive.remove(player.name)
+            debug(player.name + noFreeRevive[player.name] + "|" + freeRevive[player.name])
         }
     }
 
@@ -77,7 +79,7 @@ object CountManager {
         val manager = DungeonPlus.dungeonManager
         if (manager.isDungeonWorld(world)) {
             if (e.newGameMode == GameMode.SPECTATOR) {
-                val ui = CountUI(player)
+                val ui = CountUI(player, noFreeRevive[player.name] ?: 0, freeRevive[player.name] ?: 0)
                 ui.mubei()
                 submitAsync {
                     Thread.sleep(200)

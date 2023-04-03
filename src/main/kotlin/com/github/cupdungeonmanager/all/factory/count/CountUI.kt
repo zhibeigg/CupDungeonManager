@@ -26,7 +26,7 @@ import taboolib.platform.util.buildItem
 import taboolib.platform.util.sendLang
 import taboolib.platform.util.setMeta
 
-class CountUI(private val viewer: Player) {
+class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) {
 
     companion object {
 
@@ -105,22 +105,22 @@ class CountUI(private val viewer: Player) {
                 event.isCancelled = true
                 val factory = PlayerCount(viewer)
                 if (revive.contains(event.rawSlot)) {
-                    if (CountManager.freeRevive[viewer.name]!! > 0) {
+                    if (freeRevive > 0) {
                         DungeonPlus.dungeonManager.getDungeon(viewer.world)?.revive(viewer,
                             defaultLocation = true,
                             force = true
                         )
-                        CountManager.freeRevive[viewer.name] = CountManager.freeRevive[viewer.name]!! - 1
+                        freeRevive -= 1
                         mubei?.remove()
-                        viewer.sendLang("revive", viewer.displayName, CountManager.freeRevive[viewer.name]!!)
+                        viewer.sendLang("revive", viewer.displayName, freeRevive)
                         getTeamPlayer().forEach {
-                            it.sendLang("revive", viewer.displayName, CountManager.freeRevive[viewer.name]!!)
+                            it.sendLang("revive", viewer.displayName, freeRevive)
                         }
                         viewer.closeInventory()
                     } else if (factory.get() > 0) {
-                        if (CountManager.noFreeRevive[viewer.name]!! > 0) {
+                        if (Revive > 0) {
                             factory.reduce(1)
-                            CountManager.noFreeRevive[viewer.name] = CountManager.noFreeRevive[viewer.name]!! - 1
+                            Revive -= 1
                             DungeonPlus.dungeonManager.getDungeon(viewer.world)?.revive(viewer,
                                 defaultLocation = true,
                                 force = true
@@ -159,9 +159,9 @@ class CountUI(private val viewer: Player) {
                     if (name != null) {
                         val player = Bukkit.getPlayerExact(name)!!
                         if (factory.get() > 1) {
-                            if (CountManager.noFreeRevive[viewer.name]!! > 0) {
+                            if (Revive > 0) {
                                 if (player.gameMode == GameMode.SPECTATOR) {
-                                    CountManager.noFreeRevive[viewer.name] = CountManager.noFreeRevive[viewer.name]!! - 1
+                                    Revive -= 1
                                     factory.reduce(2)
                                     DungeonPlus.dungeonManager.getDungeon(viewer.world)?.revive(
                                         player,
@@ -193,6 +193,8 @@ class CountUI(private val viewer: Player) {
                         viewer.sendLang("team-not", viewer.displayName)
                     }
                 }
+                CountManager.noFreeRevive[viewer.name] = Revive
+                CountManager.freeRevive[viewer.name] = freeRevive
             }
         }
     }
@@ -229,7 +231,7 @@ class CountUI(private val viewer: Player) {
             lore.clear()
             lore.addAll(papi)
             lore.forEachIndexed { index, s ->
-                lore[index] = s.replace("{revive}", CountManager.noFreeRevive[viewer.name]!!.toString()).replace("{freeRevive}", CountManager.freeRevive[viewer.name]!!.toString())
+                lore[index] = s.replace("{revive}", Revive.toString()).replace("{freeRevive}", freeRevive.toString())
             }
             colored()
         }
@@ -245,7 +247,7 @@ class CountUI(private val viewer: Player) {
                 lore.clear()
                 lore.addAll(papi)
                 lore.forEachIndexed { index, s ->
-                    lore[index] = s.replace("{revive}", CountManager.noFreeRevive[player.name]!!.toString()).replace("{freeRevive}", CountManager.freeRevive[player.name]!!.toString())
+                    lore[index] = s.replace("{revive}", Revive.toString()).replace("{freeRevive}", freeRevive.toString())
                 }
                 colored()
             }

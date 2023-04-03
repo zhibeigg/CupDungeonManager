@@ -1,5 +1,6 @@
 package com.github.cupdungeonmanager.all.command
 
+import com.github.cupdungeonmanager.all.factory.count.CountManager
 import com.github.cupdungeonmanager.all.factory.count.CountUI
 import com.github.cupdungeonmanager.all.factory.count.PlayerCount
 import org.bukkit.Bukkit
@@ -89,7 +90,7 @@ object CommandCount {
                 val world = player!!.world
                 val manager = DungeonPlus.dungeonManager
                 if (manager.isDungeonWorld(world)) {
-                    val ui = CountUI(player)
+                    val ui = CountUI(player, CountManager.noFreeRevive[player.name] ?: 0, CountManager.freeRevive[player.name] ?: 0)
                     ui.open()
                 }
             }
