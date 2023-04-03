@@ -3,7 +3,7 @@ debug: false
 
 #%CupDungeonManager_count%          复活币
 #%CupDungeonManager_limit_dungeon%  副本限制次数
-
+#%CupDungeonManager_alive%          是否死亡
 database:
   use: LOCAL # LOCAL,MYSQL(没写)
   sql:

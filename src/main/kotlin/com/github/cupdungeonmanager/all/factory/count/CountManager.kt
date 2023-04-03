@@ -2,6 +2,7 @@ package com.github.cupdungeonmanager.all.factory.count
 
 import com.github.cupdungeonmanager.CupDungeonManager.config
 import com.github.cupdungeonmanager.CupDungeonManager.debug
+import com.github.cupdungeonmanager.all.api.events.PluginReloadEvent
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Entity
@@ -15,7 +16,6 @@ import taboolib.common.platform.Awake
 import taboolib.common.platform.event.SubscribeEvent
 import taboolib.common.platform.function.submitAsync
 import taboolib.common.util.sync
-import taboolib.platform.util.getMeta
 import taboolib.platform.util.sendLang
 
 object CountManager {
@@ -27,10 +27,18 @@ object CountManager {
 
     @Awake(LifeCycle.ACTIVE)
     fun load() {
-        DungeonPlus.dungeonManager.getDungeons().forEach {
-            DungeonsReviveFreeTimes[it.dungeonName] = config.getInt("DungeonsReviveFreeTimes.${it.dungeonName}", 0)
-            DungeonsReviveLimit[it.dungeonName] = config.getInt("DungeonsReviveLimit.${it.dungeonName}", 999)
+        DungeonsReviveLimit.clear()
+        DungeonsReviveFreeTimes.clear()
+        DungeonPlus.contentManager.content.forEach { (_, dungeon) ->
+            DungeonsReviveFreeTimes[dungeon.dungeonName] = config.getInt("DungeonsReviveFreeTimes.${dungeon.dungeonName}", 0)
+            DungeonsReviveLimit[dungeon.dungeonName] = config.getInt("DungeonsReviveLimit.${dungeon.dungeonName}", 999)
+            debug(dungeon.dungeonName + config.getInt("DungeonsReviveFreeTimes.${dungeon.dungeonName}") + "|" + config.getInt("DungeonsReviveLimit.${dungeon.dungeonName}"))
         }
+    }
+
+    @SubscribeEvent
+    fun e(e: PluginReloadEvent) {
+        load()
     }
 
     @SubscribeEvent
@@ -63,7 +71,7 @@ object CountManager {
         val world = player.world
         val manager = DungeonPlus.dungeonManager
         if (manager.isDungeonWorld(world)) {
-            val team = e.rightClicked.getMeta("team").toString()
+            val team = e.rightClicked.getMetadata("team").getOrNull(0)?.asString() ?: return
             val death = Bukkit.getPlayerExact(team) ?: return
             debug("${player}${death}, click mubei")
             if (player == death) {

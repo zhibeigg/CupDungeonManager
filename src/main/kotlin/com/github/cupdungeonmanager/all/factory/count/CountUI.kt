@@ -18,13 +18,11 @@ import org.serverct.ersha.dungeon.internal.dungeon.Dungeon
 import taboolib.library.configuration.ConfigurationSection
 import taboolib.library.xseries.getItemStack
 import taboolib.module.chat.colored
-import taboolib.module.nms.ItemTag
+import taboolib.module.nms.ItemTagData
 import taboolib.module.nms.getItemTag
-import taboolib.module.nms.setItemTag
 import taboolib.module.ui.buildMenu
 import taboolib.module.ui.type.Basic
 import taboolib.platform.util.buildItem
-import taboolib.platform.util.getMeta
 import taboolib.platform.util.sendLang
 import taboolib.platform.util.setMeta
 
@@ -165,23 +163,29 @@ class CountUI(private val viewer: Player) {
                         val player = Bukkit.getPlayerExact(name)!!
                         if (factory.get() > 1) {
                             if (noFreeRevive > 0) {
-                                noFreeRevive -= 1
-                                factory.reduce(2)
-                                DungeonPlus.dungeonManager.getDungeon(viewer.world)?.revive(player,
-                                    defaultLocation = true,
-                                    force = true
-                                )
-                                player.getNearbyEntities(1000.0,1000.0,1000.0).forEach {
-                                    if (it.getMeta("team").toString() == player.name) {
-                                        player.teleport(it.location)
-                                        it.remove()
+                                if (player.gameMode == GameMode.SPECTATOR) {
+                                    noFreeRevive -= 1
+                                    factory.reduce(2)
+                                    DungeonPlus.dungeonManager.getDungeon(viewer.world)?.revive(
+                                        player,
+                                        defaultLocation = true,
+                                        force = true
+                                    )
+                                    player.getNearbyEntities(1000.0, 1000.0, 1000.0).forEach {
+                                        if (it.getMetadata("team").getOrNull(0)?.asString() == player.name) {
+                                            player.teleport(it.location)
+                                            it.remove()
+                                            return@forEach
+                                        }
                                     }
+                                    viewer.sendLang("use-count-team", viewer.displayName, player.displayName)
+                                    getTeamPlayer().forEach {
+                                        it.sendLang("use-count-team", viewer.displayName, player.displayName)
+                                    }
+                                    player.closeInventory()
+                                } else {
+                                    viewer.sendLang("revive-team-alive", player.displayName)
                                 }
-                                viewer.sendLang("use-count-team", viewer.displayName, player.displayName)
-                                getTeamPlayer().forEach {
-                                    it.sendLang("use-count-team", viewer.displayName, player.displayName)
-                                }
-                                player.closeInventory()
                             } else {
                                 viewer.sendLang("revive-not-enough")
                             }
@@ -224,12 +228,9 @@ class CountUI(private val viewer: Player) {
     fun getPapiLore(item: ItemStack): ItemStack {
         return buildItem(item) {
             name = name?.let { PlaceholderAPI.setPlaceholders(viewer, it) }
-            val papi = PlaceholderAPI.setPlaceholders(viewer, lore)
+            val new = editLore(viewer, lore)
             lore.clear()
-            lore.addAll(papi)
-            lore.forEachIndexed { index, s ->
-                lore[index] = s.replace("{revive}", noFreeRevive.toString()).replace("{freeRevive}", freeRevive.toString())
-            }
+            lore.addAll(new)
             colored()
         }
     }
@@ -238,16 +239,19 @@ class CountUI(private val viewer: Player) {
         val players = getTeamPlayer()
         val items = mutableListOf<ItemStack>()
         players.forEach { player ->
-            items.add(buildItem(item) {
+            val itemAfter = buildItem(item) {
                 name = name?.replace("{name}", player.displayName)
-                val papi = PlaceholderAPI.setPlaceholders(player, lore)
+                val new = editLore(player, lore)
                 lore.clear()
-                lore.addAll(papi)
+                lore.addAll(new)
                 colored()
-            }.setItemTag(ItemTag().put("team", player.name).asCompound())
-            )
+            }
+            val itemTag = itemAfter.getItemTag()
+            itemTag["team"] = ItemTagData(player.name)
+            itemTag.saveTo(itemAfter)
+            items.add(itemAfter)
         }
-        while (items.size < 5) {
+        while (items.size < 4) {
             items.add(buildItem(noTeamIcon) {
                 val papi = PlaceholderAPI.setPlaceholders(viewer, lore)
                 lore.clear()
@@ -257,6 +261,16 @@ class CountUI(private val viewer: Player) {
             )
         }
         return items
+    }
+
+    fun editLore(player: Player, lore: ArrayList<String>): ArrayList<String> {
+        val papi = PlaceholderAPI.setPlaceholders(player, lore)
+        lore.clear()
+        lore.addAll(papi)
+        lore.forEachIndexed { index, s ->
+            lore[index] = s.replace("{revive}", noFreeRevive.toString()).replace("{freeRevive}", freeRevive.toString())
+        }
+        return lore
     }
 
     fun mubei() {
