@@ -1,6 +1,7 @@
 package com.github.cupdungeonmanager.all.factory.count
 
 import com.github.cupdungeonmanager.CupDungeonManager.config
+import com.github.cupdungeonmanager.CupDungeonManager.debug
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Entity
@@ -21,13 +22,13 @@ object CountManager {
     val DungeonsReviveFreeTimes = mutableMapOf<String, Int>()
     val DungeonsReviveLimit = mutableMapOf<String, Int>()
 
-    val move = mutableListOf<Player>()
+    private val move = mutableListOf<Player>()
 
     @Awake(LifeCycle.ACTIVE)
     fun load() {
         DungeonPlus.dungeonManager.getDungeons().forEach {
-            DungeonsReviveFreeTimes[it.dungeonName] = config.getInt("DungeonsReviveFreeTimes.${it.dungeonName}")
-            DungeonsReviveLimit[it.dungeonName] = config.getInt("DungeonsReviveLimit.${it.dungeonName}")
+            DungeonsReviveFreeTimes[it.dungeonName] = config.getInt("DungeonsReviveFreeTimes.${it.dungeonName}", 0)
+            DungeonsReviveLimit[it.dungeonName] = config.getInt("DungeonsReviveLimit.${it.dungeonName}", 0)
         }
     }
 
@@ -45,8 +46,12 @@ object CountManager {
         if (manager.isDungeonWorld(world)) {
             if (e.newGameMode == GameMode.SPECTATOR) {
                 val ui = CountUI(player)
-                ui.open()
                 ui.mubei()
+                submitAsync {
+                    Thread.sleep(1000)
+                    ui.open()
+                }
+                debug("mode_change")
             }
         }
     }
@@ -59,6 +64,7 @@ object CountManager {
         if (manager.isDungeonWorld(world)) {
             val team = e.rightClicked.getMeta("team").toString()
             val death = Bukkit.getPlayerExact(team) ?: return
+            debug("${player}, click mubei")
             submitAsync {
                 move.remove(player)
                 player.sendTitle("请勿移动!等待三秒", "", 5, 10, 5)

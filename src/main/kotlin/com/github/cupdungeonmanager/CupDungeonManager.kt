@@ -17,7 +17,6 @@ object CupDungeonManager : Plugin() {
     override fun onEnable() {
         if (!enable("DungeonPlus")) disablePlugin()
         enable("PlaceholderAPI")
-
         say("&6CupDungeonManager!&a启动成功！&cby.zhi_bei")
     }
 

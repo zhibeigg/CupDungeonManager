@@ -1,7 +1,9 @@
 package com.github.cupdungeonmanager.all.command
 
+import com.github.cupdungeonmanager.all.factory.count.CountUI
 import com.github.cupdungeonmanager.all.factory.count.PlayerCount
 import org.bukkit.Bukkit
+import org.serverct.ersha.dungeon.DungeonPlus
 import taboolib.common.platform.ProxyCommandSender
 import taboolib.common.platform.command.CommandBody
 import taboolib.common.platform.command.CommandHeader
@@ -73,6 +75,22 @@ object CommandCount {
                     val factory = PlayerCount(it)
                     factory.add(argument.toInt())
                     it.sendLang("count-add", it.displayName, factory.get(), argument.toInt())
+                }
+            }
+        }
+    }
+
+    @CommandBody
+    val open = subCommand {
+        dynamic("player") {
+            suggestion<ProxyCommandSender> { _, _ -> Bukkit.getOnlinePlayers().map { it.name } }
+            execute<ProxyCommandSender> { _, _, argument ->
+                val player = Bukkit.getPlayerExact(argument)
+                val world = player!!.world
+                val manager = DungeonPlus.dungeonManager
+                if (manager.isDungeonWorld(world)) {
+                    val ui = CountUI(player)
+                    ui.open()
                 }
             }
         }

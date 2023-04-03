@@ -1,12 +1,14 @@
 package com.github.cupdungeonmanager.all.factory.count
 
 import com.github.cupdungeonmanager.CupDungeonManager.config
+import com.github.cupdungeonmanager.CupDungeonManager.debug
 import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.Bukkit
-import org.bukkit.GameMode
+import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.serverct.ersha.dungeon.DungeonPlus
@@ -17,14 +19,14 @@ import taboolib.module.chat.colored
 import taboolib.module.nms.ItemTag
 import taboolib.module.nms.getItemTag
 import taboolib.module.nms.setItemTag
-import taboolib.module.ui.openMenu
+import taboolib.module.ui.buildMenu
 import taboolib.module.ui.type.Basic
 import taboolib.platform.util.buildItem
 import taboolib.platform.util.getMeta
 import taboolib.platform.util.sendLang
 import taboolib.platform.util.setMeta
 
-class CountUI(val viewer: Player) {
+class CountUI(private val viewer: Player) {
 
     companion object {
 
@@ -61,19 +63,24 @@ class CountUI(val viewer: Player) {
         val teamIcon: ItemStack
             get() = root.getItemStack("team")!!
 
+        val noTeamIcon: ItemStack
+            get() = root.getItemStack("no-team")!!
+
+
     }
 
-    var mubei: Entity? = null
+    private var mubei: Entity? = null
 
-    val dungeon: Dungeon
+    private val dungeon: Dungeon
         get() = DungeonPlus.dungeonManager.getDungeon(viewer)!!
 
-    var freeRevive = CountManager.DungeonsReviveFreeTimes[dungeon.dungeonName]!!
-    var Revive = CountManager.DungeonsReviveLimit[dungeon.dungeonName]!!
+    private var freeRevive = CountManager.DungeonsReviveFreeTimes[dungeon.dungeonName] ?: 0
+    private var noFreeRevive = CountManager.DungeonsReviveLimit[dungeon.dungeonName] ?: 0
 
-    fun open() {
-        viewer.openMenu<Basic>(title) {
+    fun build() : Inventory {
+        return buildMenu<Basic>(title.colored()) {
             rows(rows)
+            handLocked(true)
             root.getKeys(false).filter { it.startsWith("icon-") }.forEach {
                 val itemStack = buildItem(root.getItemStack(it)!!) {
                     flags += ItemFlag.values()
@@ -95,14 +102,17 @@ class CountUI(val viewer: Player) {
                 set(it, infoItem)
             }
             team.forEachIndexed { index, i ->
-                set(i, getTeam(teamIcon, index))
+                set(i, getTeam(teamIcon)[index])
             }
             onClick { event ->
                 event.isCancelled = true
                 val factory = PlayerCount(viewer)
                 if (revive.contains(event.rawSlot)) {
                     if (freeRevive > 0) {
-                        viewer.gameMode = GameMode.SURVIVAL
+                        DungeonPlus.dungeonManager.getDungeon(viewer.world)?.revive(viewer,
+                            defaultLocation = true,
+                            force = true
+                        )
                         freeRevive -= 1
                         mubei?.remove()
                         viewer.sendLang("revive", viewer.displayName, freeRevive)
@@ -111,10 +121,13 @@ class CountUI(val viewer: Player) {
                         }
                         viewer.closeInventory()
                     } else if (factory.get() > 0) {
-                        if (Revive > 0) {
+                        if (noFreeRevive > 0) {
                             factory.reduce(1)
-                            Revive -= 1
-                            viewer.gameMode = GameMode.SURVIVAL
+                            noFreeRevive -= 1
+                            DungeonPlus.dungeonManager.getDungeon(viewer.world)?.revive(viewer,
+                                defaultLocation = true,
+                                force = true
+                            )
                             mubei?.remove()
                             viewer.sendLang("use-count", viewer.displayName)
                             getTeamPlayer().forEach {
@@ -150,12 +163,16 @@ class CountUI(val viewer: Player) {
                     if (name != null) {
                         val player = Bukkit.getPlayerExact(name)!!
                         if (factory.get() > 1) {
-                            if (Revive > 0) {
-                                Revive -= 1
+                            if (noFreeRevive > 0) {
+                                noFreeRevive -= 1
                                 factory.reduce(2)
-                                player.gameMode = GameMode.SURVIVAL
+                                DungeonPlus.dungeonManager.getDungeon(viewer.world)?.revive(player,
+                                    defaultLocation = true,
+                                    force = true
+                                )
                                 player.getNearbyEntities(1000.0,1000.0,1000.0).forEach {
                                     if (it.getMeta("team").toString() == player.name) {
+                                        player.teleport(it.location)
                                         it.remove()
                                     }
                                 }
@@ -178,6 +195,11 @@ class CountUI(val viewer: Player) {
         }
     }
 
+    fun open() {
+        debug("open")
+        viewer.openInventory(build())
+    }
+
     fun check(): Boolean {
         DungeonPlus.teamManager.getTeam(viewer)?.team?.players?.forEach {
             val player = Bukkit.getPlayer(it)
@@ -195,6 +217,7 @@ class CountUI(val viewer: Player) {
                 players.add(Bukkit.getPlayer(it)!!)
             }
         }
+        debug(players.toString())
         return players
     }
 
@@ -205,27 +228,43 @@ class CountUI(val viewer: Player) {
             lore.clear()
             lore.addAll(papi)
             lore.forEachIndexed { index, s ->
-                lore[index] = s.replace("{revive}", Revive.toString()).replace("{freeRevive}", freeRevive.toString())
+                lore[index] = s.replace("{revive}", noFreeRevive.toString()).replace("{freeRevive}", freeRevive.toString())
             }
             colored()
         }
     }
 
-    fun getTeam(item: ItemStack, number: Int): ItemStack {
-        val player = getTeamPlayer()[number]
-        return buildItem(item) {
-            name = name?.replace("{name}", player.displayName)
-            val papi = PlaceholderAPI.setPlaceholders(player, lore)
-            lore.clear()
-            lore.addAll(papi)
-            colored()
-        }.setItemTag(ItemTag().put("team", player.name).asCompound())
-
+    fun getTeam(item: ItemStack): MutableList<ItemStack> {
+        val players = getTeamPlayer()
+        val items = mutableListOf<ItemStack>()
+        players.forEach { player ->
+            items.add(buildItem(item) {
+                name = name?.replace("{name}", player.displayName)
+                val papi = PlaceholderAPI.setPlaceholders(player, lore)
+                lore.clear()
+                lore.addAll(papi)
+                colored()
+            }.setItemTag(ItemTag().put("team", player.name).asCompound())
+            )
+        }
+        while (items.size < 5) {
+            items.add(buildItem(noTeamIcon) {
+                val papi = PlaceholderAPI.setPlaceholders(viewer, lore)
+                lore.clear()
+                lore.addAll(papi)
+                colored()
+            }
+            )
+        }
+        return items
     }
+
     fun mubei() {
-        val entity = viewer.world.spawnEntity(viewer.location.add(0.0, 0.0, 0.0), EntityType.ARMOR_STAND)
+        val entity: ArmorStand = viewer.world.spawnEntity(viewer.location.add(0.0, 0.0, 0.0), EntityType.ARMOR_STAND) as ArmorStand
         entity.isGlowing = true
-        entity.customName = PlaceholderAPI.setPlaceholders(viewer, config.getString("name") ?: "%player_name% 的亡魂".colored())
+        entity.isCustomNameVisible = true
+        entity.setGravity(false)
+        entity.customName = PlaceholderAPI.setPlaceholders(viewer, config.getString("name") ?: "%player_name% 的亡魂").colored()
         entity.setMeta("team", viewer.name)
         entity.isInvulnerable = true
     }
