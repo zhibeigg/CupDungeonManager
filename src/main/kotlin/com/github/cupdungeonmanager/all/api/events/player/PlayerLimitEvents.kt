@@ -3,7 +3,7 @@ package com.github.cupdungeonmanager.all.api.events.player
 import org.bukkit.entity.Player
 import taboolib.platform.type.BukkitProxyEvent
 
-class PlayerLimitEvents() {
+class PlayerLimitEvents {
 
     class Set(player: Player, value: Int, dungeon: String) : BukkitProxyEvent()
 

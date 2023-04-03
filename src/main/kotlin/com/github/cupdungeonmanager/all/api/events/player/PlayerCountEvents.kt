@@ -3,7 +3,7 @@ package com.github.cupdungeonmanager.all.api.events.player
 import org.bukkit.entity.Player
 import taboolib.platform.type.BukkitProxyEvent
 
-class PlayerCountEvents(player: Player, value: Int) : BukkitProxyEvent() {
+class PlayerCountEvents {
 
     class Set(player: Player, value: Int) : BukkitProxyEvent()
 
