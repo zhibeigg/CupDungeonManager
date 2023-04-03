@@ -4,6 +4,7 @@ import com.github.cupdungeonmanager.CupDungeonManager.config
 import com.github.cupdungeonmanager.CupDungeonManager.debug
 import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.Bukkit
+import org.bukkit.GameMode
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
@@ -200,10 +201,9 @@ class CountUI(private val viewer: Player) {
         viewer.openInventory(build())
     }
 
-    fun check(): Boolean {
-        DungeonPlus.teamManager.getTeam(viewer)?.team?.players?.forEach {
-            val player = Bukkit.getPlayer(it)
-            if (player?.isDead == false) {
+    private fun check(): Boolean {
+        getTeamPlayer().forEach {
+            if (it.gameMode != GameMode.SPECTATOR) {
                 return true
             }
         }

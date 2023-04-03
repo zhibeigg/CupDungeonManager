@@ -5,6 +5,7 @@ import org.bukkit.entity.Player
 import taboolib.platform.compat.PlaceholderExpansion
 
 object Placeholder : PlaceholderExpansion {
+
     override val identifier: String = "CupDungeonManager"
 
     override fun onPlaceholderRequest(player: Player?, args: String): String {

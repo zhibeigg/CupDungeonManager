@@ -12,7 +12,7 @@ import org.serverct.ersha.dungeon.common.api.component.script.type.ScriptType
 import org.serverct.ersha.dungeon.internal.dungeon.Dungeon
 import taboolib.module.chat.colored
 
-@AutoRegister
+@AutoRegister(registerMessage = true)
 class DungeonSetLimitScript : BasicActionScript(false) {
 
     override val type: Array<ScriptType> = arrayOf(ScriptType.SYSTEM)
@@ -62,9 +62,4 @@ class DungeonSetLimitScript : BasicActionScript(false) {
         }
         return var1
     }
-
-
-
-
-
 }

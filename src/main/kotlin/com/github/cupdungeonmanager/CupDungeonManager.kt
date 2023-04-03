@@ -1,5 +1,6 @@
 package com.github.cupdungeonmanager
 
+import com.github.cupdungeonmanager.all.script.DungeonSetLimitScript
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import taboolib.common.platform.Plugin
@@ -18,6 +19,7 @@ object CupDungeonManager : Plugin() {
         if (!enable("DungeonPlus")) disablePlugin()
         enable("PlaceholderAPI")
         say("&6CupDungeonManager!&a启动成功！&cby.zhi_bei")
+        DungeonSetLimitScript().register(true)
     }
 
     //插件关闭时
