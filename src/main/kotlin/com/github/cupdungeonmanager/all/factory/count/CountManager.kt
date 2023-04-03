@@ -14,6 +14,7 @@ import taboolib.common.LifeCycle
 import taboolib.common.platform.Awake
 import taboolib.common.platform.event.SubscribeEvent
 import taboolib.common.platform.function.submitAsync
+import taboolib.common.util.sync
 import taboolib.platform.util.getMeta
 import taboolib.platform.util.sendLang
 
@@ -48,8 +49,8 @@ object CountManager {
                 val ui = CountUI(player)
                 ui.mubei()
                 submitAsync {
-                    Thread.sleep(1000)
-                    ui.open()
+                    Thread.sleep(200)
+                    sync { ui.open() }
                 }
                 debug("mode_change")
             }

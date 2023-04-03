@@ -1,6 +1,7 @@
 package com.github.cupdungeonmanager.all.factory.limit
 
 import com.github.cupdungeonmanager.CupDungeonManager.config
+import com.github.cupdungeonmanager.all.api.events.player.PlayerLimitEvents
 import com.github.cupdungeonmanager.all.storage.Storage
 import org.bukkit.Bukkit
 import org.bukkit.event.player.PlayerJoinEvent
@@ -37,6 +38,7 @@ object LimitManager {
 
 
     fun resetALL(count: Int = 0) {
+        PlayerLimitEvents.Reset().call()
         Bukkit.getOnlinePlayers().forEach {
             it.sendLang("limit-reset", it.displayName)
         }
