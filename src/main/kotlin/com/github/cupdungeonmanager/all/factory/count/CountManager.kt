@@ -7,12 +7,8 @@ import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
-import org.bukkit.event.player.PlayerGameModeChangeEvent
-import org.bukkit.event.player.PlayerInteractEntityEvent
-import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.event.player.*
 import org.serverct.ersha.dungeon.DungeonPlus
-import org.serverct.ersha.dungeon.common.api.event.dungeon.DungeonEndEvent
-import org.serverct.ersha.dungeon.common.api.event.dungeon.DungeonStartEvent
 import taboolib.common.LifeCycle
 import taboolib.common.platform.Awake
 import taboolib.common.platform.event.SubscribeEvent
@@ -42,29 +38,34 @@ object CountManager {
     }
 
     @SubscribeEvent
+    fun e(e: PlayerQuitEvent) {
+        noFreeRevive.remove(e.player.name)
+        freeRevive.remove(e.player.name)
+        move.remove(e.player)
+    }
+
+    @SubscribeEvent
     fun e(e: PluginReloadEvent) {
         load()
     }
 
     @SubscribeEvent
     fun e(e: PlayerMoveEvent) {
-        move.add(e.player)
-    }
-
-    @SubscribeEvent
-    fun e(e: DungeonStartEvent.Before) {
-        e.dungeon.team.players.forEach {
-            val player = Bukkit.getPlayer(it)!!
-            freeRevive[player.name] = DungeonsReviveFreeTimes[e.dungeon.dungeonName] ?: 0
-            noFreeRevive[player.name] = DungeonsReviveLimit[e.dungeon.dungeonName] ?: 999
-            debug(player.name + noFreeRevive[player.name] + "|" + freeRevive[player.name])
+        if (!move.contains(e.player)) {
+            move.add(e.player)
         }
     }
 
     @SubscribeEvent
-    fun e(e: DungeonEndEvent.After) {
-        e.dungeon.team.players.forEach {
-            val player = Bukkit.getPlayer(it)!!
+    fun e(e: PlayerChangedWorldEvent) {
+        val dp = DungeonPlus.dungeonManager
+        val player = e.player
+        if (dp.isDungeonWorld(player.world)) {
+            val dungeon = dp.getDungeon(player.world) ?: return
+            freeRevive[player.name] = DungeonsReviveFreeTimes[dungeon.dungeonName] ?: 0
+            noFreeRevive[player.name] = DungeonsReviveLimit[dungeon.dungeonName] ?: 999
+            debug(player.name + noFreeRevive[player.name] + "|" + freeRevive[player.name])
+        } else {
             freeRevive.remove(player.name)
             noFreeRevive.remove(player.name)
             debug(player.name + noFreeRevive[player.name] + "|" + freeRevive[player.name])
@@ -96,8 +97,7 @@ object CountManager {
         val world = player.world
         val manager = DungeonPlus.dungeonManager
         if (manager.isDungeonWorld(world)) {
-            val team = e.rightClicked.getMetadata("team").getOrNull(0)?.asString() ?: return
-            val death = Bukkit.getPlayerExact(team) ?: return
+            val death = e.rightClicked.getMetadata("CupDungeonManager:Team").getOrNull(0)?.value() as? Player ?: return
             debug("${player}${death}, click mubei")
             if (player == death) {
                 player.sendLang("do-not-interact-self")

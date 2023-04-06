@@ -12,6 +12,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+import org.bukkit.metadata.FixedMetadataValue
 import org.serverct.ersha.dungeon.DungeonPlus
 import org.serverct.ersha.dungeon.common.api.event.dungeon.enums.EndType
 import org.serverct.ersha.dungeon.internal.dungeon.Dungeon
@@ -22,6 +23,7 @@ import taboolib.module.nms.ItemTagData
 import taboolib.module.nms.getItemTag
 import taboolib.module.ui.buildMenu
 import taboolib.module.ui.type.Basic
+import taboolib.platform.BukkitPlugin
 import taboolib.platform.util.buildItem
 import taboolib.platform.util.sendLang
 import taboolib.platform.util.setMeta
@@ -275,7 +277,7 @@ class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) 
         entity.isCustomNameVisible = true
         entity.setGravity(false)
         entity.customName = PlaceholderAPI.setPlaceholders(viewer, config.getString("name") ?: "%player_name% 的亡魂").colored()
-        entity.setMeta("team", viewer.name)
+        entity.setMeta("CupDungeonManager:Team", FixedMetadataValue(BukkitPlugin.getInstance(), viewer))
         entity.isInvulnerable = true
     }
 

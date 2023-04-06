@@ -5,6 +5,7 @@ import com.github.cupdungeonmanager.all.factory.limit.LimitManager
 import com.github.cupdungeonmanager.all.factory.limit.PlayerLimit
 import com.github.cupdungeonmanager.all.storage.Storage
 import org.bukkit.Bukkit
+import org.serverct.ersha.dungeon.DungeonPlus
 import taboolib.common.platform.ProxyCommandSender
 import taboolib.common.platform.command.CommandBody
 import taboolib.common.platform.command.CommandHeader
@@ -28,6 +29,7 @@ object CommandLimit {
             suggestion<ProxyCommandSender> { _, _ -> Bukkit.getOnlinePlayers().map { it.name } }
 
             dynamic("dungeon") {
+                suggestion<ProxyCommandSender> { _, _ -> DungeonPlus.contentManager.content.map { it.value.dungeonName } }
 
                 dynamic("value") {
                     execute<ProxyCommandSender> { sender, context, argument ->
@@ -47,6 +49,7 @@ object CommandLimit {
             suggestion<ProxyCommandSender> { _, _ -> Bukkit.getOnlinePlayers().map { it.name } }
 
             dynamic("dungeon") {
+                suggestion<ProxyCommandSender> { _, _ -> DungeonPlus.contentManager.content.map { it.value.dungeonName } }
 
                 dynamic("value") {
                     execute<ProxyCommandSender> { sender, context, argument ->
@@ -66,6 +69,7 @@ object CommandLimit {
             suggestion<ProxyCommandSender> { _, _ -> Bukkit.getOnlinePlayers().map { it.name } }
 
             dynamic("dungeon") {
+                suggestion<ProxyCommandSender> { _, _ -> DungeonPlus.contentManager.content.map { it.value.dungeonName } }
 
                 dynamic("value") {
                     execute<ProxyCommandSender> { sender, context, argument ->
@@ -107,7 +111,7 @@ object CommandLimit {
                 val playerExact = Bukkit.getPlayerExact(argument) ?: return@execute
                 PlayerLimit(playerExact).reset()
                 sender.sendMessage("")
-                CupDungeonManager.config.getConfigurationSection("save")?.toMap()?.forEach {
+                CupDungeonManager.config.getConfigurationSection("limit")?.toMap()?.forEach {
                     val limit = Storage.INSTANCE.getLimit(playerExact, it.key)
                     sender.sendMessage("&e副本:${it.key}&7, &b次数:$limit".colored())
                 }
