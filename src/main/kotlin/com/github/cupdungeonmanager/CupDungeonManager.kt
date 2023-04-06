@@ -1,5 +1,7 @@
 package com.github.cupdungeonmanager
 
+import com.germ.germplugin.api.GermKeyAPI
+import com.germ.germplugin.api.KeyType
 import com.github.cupdungeonmanager.all.script.DungeonSetLimitScript
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
@@ -18,8 +20,15 @@ object CupDungeonManager : Plugin() {
     override fun onEnable() {
         if (!enable("DungeonPlus")) disablePlugin()
         enable("PlaceholderAPI")
+        enable("GermPlugin")
         say("&6CupDungeonManager!&a启动成功！&cby.zhi_bei")
         DungeonSetLimitScript().register(true)
+        GermKeyAPI.registerKey(KeyType.KEY_SPACE)
+        say("&6萌芽按键SPACE注册成功")
+        GermKeyAPI.registerKey(KeyType.KEY_LEFT)
+        say("&6萌芽按键左键注册成功")
+        GermKeyAPI.registerKey(KeyType.KEY_RIGHT)
+        say("&6萌芽按键右键注册成功")
     }
 
     //插件关闭时

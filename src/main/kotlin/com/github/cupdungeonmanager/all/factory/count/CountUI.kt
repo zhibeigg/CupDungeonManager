@@ -103,6 +103,9 @@ class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) 
             team.forEachIndexed { index, i ->
                 set(i, getTeam(teamIcon)[index])
             }
+            onClose {
+                viewer.sendTitle((config.getString("title") ?: "&7[&4死亡&7]").colored(), (config.getString("subtitle") ?: "&7请等待队友扶持&c|&a空格&7打开界面&c|&a鼠标左右键&7选择观战视角").colored(), 20, 40, 20)
+            }
             onClick { event ->
                 event.isCancelled = true
                 val factory = PlayerCount(viewer)
@@ -279,6 +282,7 @@ class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) 
         entity.customName = PlaceholderAPI.setPlaceholders(viewer, config.getString("name") ?: "%player_name% 的亡魂").colored()
         entity.setMeta("CupDungeonManager:Team", FixedMetadataValue(BukkitPlugin.getInstance(), viewer))
         entity.isInvulnerable = true
+        viewer.spectatorTarget = entity
     }
 
 }

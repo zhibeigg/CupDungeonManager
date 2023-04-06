@@ -27,6 +27,7 @@ taboolib {
         }
         dependencies {
             name("PlaceholderAPI").optional(true)
+            name("GermPlugin").optional(true)
             name("DungeonPlus")
         }
     }

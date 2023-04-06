@@ -1,5 +1,7 @@
 package com.github.cupdungeonmanager.all.factory.count
 
+import com.germ.germplugin.api.KeyType
+import com.germ.germplugin.api.event.GermKeyDownEvent
 import com.github.cupdungeonmanager.CupDungeonManager.config
 import com.github.cupdungeonmanager.CupDungeonManager.debug
 import com.github.cupdungeonmanager.all.api.events.PluginReloadEvent
@@ -14,6 +16,7 @@ import taboolib.common.platform.Awake
 import taboolib.common.platform.event.SubscribeEvent
 import taboolib.common.platform.function.submitAsync
 import taboolib.common.util.sync
+import taboolib.platform.util.sendActionBar
 import taboolib.platform.util.sendLang
 
 object CountManager {
@@ -23,6 +26,8 @@ object CountManager {
 
     val freeRevive = mutableMapOf<String, Int>()
     val noFreeRevive = mutableMapOf<String, Int>()
+
+    val playerData = mutableMapOf<String, CountUI>()
 
     private val move = mutableSetOf<Player>()
 
@@ -66,6 +71,7 @@ object CountManager {
             noFreeRevive[player.name] = DungeonsReviveLimit[dungeon.dungeonName] ?: 999
             debug(player.name + noFreeRevive[player.name] + "|" + freeRevive[player.name])
         } else {
+            playerData.remove(player.name)
             freeRevive.remove(player.name)
             noFreeRevive.remove(player.name)
             debug(player.name + noFreeRevive[player.name] + "|" + freeRevive[player.name])
@@ -81,6 +87,7 @@ object CountManager {
         if (manager.isDungeonWorld(world)) {
             if (e.newGameMode == GameMode.SPECTATOR) {
                 val ui = CountUI(player, noFreeRevive[player.name] ?: 0, freeRevive[player.name] ?: 0)
+                playerData[player.name] = ui
                 ui.mubei()
                 submitAsync {
                     Thread.sleep(200)
@@ -92,11 +99,68 @@ object CountManager {
     }
 
     @SubscribeEvent
+    fun e(e: GermKeyDownEvent) {
+        val player = e.player
+        val dp = DungeonPlus.dungeonManager
+        if (dp.isDungeonWorld(player.world)) {
+            val team = getTeamPlayer(player)
+            if (player.gameMode == GameMode.SPECTATOR) {
+                when (e.keyType) {
+                    KeyType.KEY_LEFT -> {
+                        var newTarget: Player = team.first()
+                        team.forEachIndexed { index, it ->
+                            val target = it.spectatorTarget
+                            if (target != null) {
+                                if (it.name == target.name) {
+                                    newTarget = if (index == 0) {
+                                        team.last()
+                                    } else {
+                                        team[index - 1]
+                                    }
+                                }
+                            }
+                        }
+                        player.spectatorTarget = newTarget
+                        player.sendActionBar(newTarget.displayName)
+                    }
+
+                    KeyType.KEY_RIGHT -> {
+                        var newTarget: Player = team.first()
+                        team.forEachIndexed { index, it ->
+                            val target = it.spectatorTarget
+                            if (target != null) {
+                                if (it.name == target.name) {
+                                    newTarget = if (index == team.size + 1) {
+                                        team.first()
+                                    } else {
+                                        team[index + 1]
+                                    }
+                                }
+                            }
+                        }
+                        player.spectatorTarget = newTarget
+                        player.sendActionBar(newTarget.displayName)
+                    }
+
+                    KeyType.KEY_SPACE -> {
+                        val ui = playerData[player.name] ?: CountUI(player, noFreeRevive[player.name] ?: 0, freeRevive[player.name] ?: 0)
+                        playerData[player.name] = ui
+                        ui.open()
+                    }
+
+                    else -> return
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
     fun e(e: PlayerInteractEntityEvent) {
         val player = e.player
         val world = player.world
         val manager = DungeonPlus.dungeonManager
         if (manager.isDungeonWorld(world)) {
+            debug(e.rightClicked.getMetadata("CupDungeonManager:Team").getOrNull(0)?.value().toString() + "|mubei")
             val death = e.rightClicked.getMetadata("CupDungeonManager:Team").getOrNull(0)?.value() as? Player ?: return
             debug("${player}${death}, click mubei")
             if (player == death) {
@@ -137,6 +201,16 @@ object CountManager {
         DungeonPlus.teamManager.getTeam(player)?.players?.forEach {
             Bukkit.getPlayer(it)?.sendLang("team-help-other", death.displayName, player.displayName)
         }
+    }
+
+    fun getTeamPlayer(player: Player): MutableList<Player> {
+        val players = mutableListOf<Player>()
+        DungeonPlus.teamManager.getTeam(player)?.team?.players?.forEach {
+            if (Bukkit.getPlayer(it)!! != player) {
+                players.add(Bukkit.getPlayer(it)!!)
+            }
+        }
+        return players
     }
 
 }

@@ -34,3 +34,6 @@ DungeonsReviveFreeTimes:
 DungeonsReviveLimit:
   test1: 3
   test2: 3
+
+title: "&7[&4死亡&7]"
+subtitle: "&7请等待队友扶持&c|&a空格&7打开界面&c|&a鼠标左右键&7选择观战视角"
