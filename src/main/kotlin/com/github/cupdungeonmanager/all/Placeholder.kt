@@ -11,7 +11,7 @@ object Placeholder : PlaceholderExpansion {
 
     override fun onPlaceholderRequest(player: Player?, args: String): String {
         return when (args) {
-            "coin" -> player?.let { Storage.INSTANCE.getCount(it).toString() } ?: "0"
+            "count" -> player?.let { Storage.INSTANCE.getCount(it).toString() } ?: "0"
             "limit" -> {
                 val dungeon = args.split("_")[1]
                 player?.let { Storage.INSTANCE.getLimit(it, dungeon).toString() } ?: "0"
