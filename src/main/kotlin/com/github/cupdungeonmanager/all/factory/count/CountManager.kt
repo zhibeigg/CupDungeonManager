@@ -88,10 +88,12 @@ object CountManager {
             if (e.newGameMode == GameMode.SPECTATOR) {
                 val ui = CountUI(player, noFreeRevive[player.name] ?: 0, freeRevive[player.name] ?: 0)
                 playerData[player.name] = ui
-                ui.mubei()
                 submitAsync {
                     Thread.sleep(200)
-                    sync { ui.open() }
+                    sync {
+                        ui.open()
+                        ui.mubei()
+                    }
                 }
                 debug("mode_change")
             }

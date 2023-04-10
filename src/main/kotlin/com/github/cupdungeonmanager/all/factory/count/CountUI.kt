@@ -282,7 +282,9 @@ class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) 
         entity.customName = PlaceholderAPI.setPlaceholders(viewer, config.getString("name") ?: "%player_name% 的亡魂").colored()
         entity.setMeta("CupDungeonManager:Team", FixedMetadataValue(BukkitPlugin.getInstance(), viewer))
         entity.isInvulnerable = true
-        viewer.spectatorTarget = entity
+        if (viewer.gameMode == GameMode.SPECTATOR) {
+            viewer.spectatorTarget = entity
+        }
     }
 
 }
