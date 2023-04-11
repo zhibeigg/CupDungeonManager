@@ -9,7 +9,8 @@ interface Storage {
 
         val INSTANCE by lazy {
             when (type) {
-                "LOCAL" -> StorageLocal()
+                "LOCAL", "yml" -> StorageLocal()
+                //"MYSQL", "sql" -> StorageMysql()
                 else -> error("找不到存储方式")
             }
         }
