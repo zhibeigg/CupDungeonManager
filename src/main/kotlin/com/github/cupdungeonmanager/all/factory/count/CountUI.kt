@@ -104,7 +104,22 @@ class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) 
                 set(i, getTeam(teamIcon)[index])
             }
             onClose {
-                viewer.sendTitle((config.getString("title") ?: "&7[&4死亡&7]").colored(), (config.getString("subtitle") ?: "&7请等待队友扶持&c|&a空格&7打开界面&c|&a鼠标左右键&7选择观战视角").colored(), 20, 40, 20)
+                if (viewer.gameMode == GameMode.SPECTATOR) {
+                    viewer.sendTitle((config.getString("title") ?: "&7[&4死亡&7]").colored(),
+                        (config.getString("subtitle")
+                            ?: "&7请等待队友扶持&c|&a空格&7打开界面&c|&a鼠标左右键&7选择观战视角").colored(),
+                        20,
+                        40,
+                        20
+                    )
+                } else {
+                    viewer.sendTitle((config.getString("title-revive") ?: "&7[&a复活&7]").colored(),
+                        "",
+                        20,
+                        40,
+                        20
+                    )
+                }
             }
             onClick { event ->
                 event.isCancelled = true
