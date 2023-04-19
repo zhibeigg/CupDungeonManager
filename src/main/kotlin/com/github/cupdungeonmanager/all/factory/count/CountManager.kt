@@ -197,6 +197,21 @@ object CountManager {
         }
     }
 
+    @SubscribeEvent
+    fun e(e: PlayerCommandPreprocessEvent) {
+        val player = e.player
+        if (!player.isOp) {
+            if (DungeonPlus.dungeonManager.isDungeonWorld(player.world)) {
+                if (e.message.contains("revive")) {
+                    e.isCancelled = true
+                    if (player.gameMode == GameMode.SPECTATOR) {
+                        playerData[player.name]?.open()
+                    }
+                }
+            }
+        }
+    }
+
     fun revive(death: Player, mubei: Entity, player: Player) {
         death.gameMode = GameMode.SURVIVAL
         death.teleport(mubei)

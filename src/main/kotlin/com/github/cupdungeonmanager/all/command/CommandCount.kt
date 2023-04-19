@@ -31,6 +31,7 @@ object CommandCount {
                     val playerExact = Bukkit.getPlayerExact(context["player"]) ?: return@execute
                     val factory = PlayerCount(playerExact)
                     sender.sendLang("count-reduce", playerExact.displayName, factory.get(), argument.toInt())
+                    playerExact.sendLang("count-reduce", playerExact.displayName, factory.get(), argument.toInt())
                     factory.reduce(argument.toInt())
                 }
             }
@@ -46,6 +47,7 @@ object CommandCount {
                     val playerExact = Bukkit.getPlayerExact(context["player"]) ?: return@execute
                     val factory = PlayerCount(playerExact)
                     sender.sendLang("count-add", playerExact.displayName, factory.get(), argument.toInt())
+                    playerExact.sendLang("count-add", playerExact.displayName, factory.get(), argument.toInt())
                     factory.add(argument.toInt())
                 }
             }
