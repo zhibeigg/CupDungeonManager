@@ -107,7 +107,7 @@ class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) 
             onClose {
                 submitAsync {
                     Thread.sleep(200)
-                    if (DungeonPlus.dungeonManager.isDungeonWorld(viewer.world)) {
+                    if (DungeonPlus.dungeonManager.isCommonDungeonWorld(viewer.world)) {
                         if (viewer.gameMode == GameMode.SPECTATOR) {
                             viewer.sendTitle(
                                 (config.getString("title") ?: "&7[&4死亡&7]").colored(),
@@ -167,7 +167,7 @@ class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) 
                     }
                 }
                 if (giveUP.contains(event.rawSlot)) {
-                    if (DungeonPlus.dungeonManager.isDungeonWorld(viewer.world)) {
+                    if (DungeonPlus.dungeonManager.isCommonDungeonWorld(viewer.world)) {
                         if (check()) {
                             viewer.closeInventory()
                             val viewered = getTeamPlayer()[0]

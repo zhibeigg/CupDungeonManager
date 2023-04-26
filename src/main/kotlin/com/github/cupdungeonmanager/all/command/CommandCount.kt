@@ -91,7 +91,7 @@ object CommandCount {
                 val player = Bukkit.getPlayerExact(argument)
                 val world = player!!.world
                 val manager = DungeonPlus.dungeonManager
-                if (manager.isDungeonWorld(world)) {
+                if (manager.isCommonDungeonWorld(world)) {
                     val ui = CountUI(player, CountManager.noFreeRevive[player.name] ?: 0, CountManager.freeRevive[player.name] ?: 0)
                     ui.open()
                 }

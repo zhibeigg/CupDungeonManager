@@ -65,7 +65,7 @@ object CountManager {
     fun e(e: PlayerChangedWorldEvent) {
         val dp = DungeonPlus.dungeonManager
         val player = e.player
-        if (dp.isDungeonWorld(player.world)) {
+        if (dp.isCommonDungeonWorld(player.world)) {
             val dungeon = dp.getDungeon(player.world) ?: return
             freeRevive[player.name] = DungeonsReviveFreeTimes[dungeon.dungeonName] ?: 0
             noFreeRevive[player.name] = DungeonsReviveLimit[dungeon.dungeonName] ?: 999
@@ -84,7 +84,7 @@ object CountManager {
         val player = e.player
         val world = player.world
         val manager = DungeonPlus.dungeonManager
-        if (manager.isDungeonWorld(world)) {
+        if (manager.isCommonDungeonWorld(world)) {
             if (e.newGameMode == GameMode.SPECTATOR) {
                 val ui = CountUI(player, noFreeRevive[player.name] ?: 0, freeRevive[player.name] ?: 0)
                 playerData[player.name] = ui
@@ -104,7 +104,7 @@ object CountManager {
     fun e(e: GermKeyDownEvent) {
         val player = e.player
         val dp = DungeonPlus.dungeonManager
-        if (dp.isDungeonWorld(player.world)) {
+        if (dp.isCommonDungeonWorld(player.world)) {
             val team = getTeamPlayer(player)
             if (player.gameMode == GameMode.SPECTATOR) {
                 when (e.keyType) {
@@ -161,7 +161,7 @@ object CountManager {
         val player = e.player
         val world = player.world
         val manager = DungeonPlus.dungeonManager
-        if (manager.isDungeonWorld(world)) {
+        if (manager.isCommonDungeonWorld(world)) {
             debug(e.rightClicked.getMetadata("CupDungeonManager:Team").getOrNull(0)?.value().toString() + "|mubei")
             val death = e.rightClicked.getMetadata("CupDungeonManager:Team").getOrNull(0)?.value() as? Player ?: return
             debug("${player}${death}, click mubei")
@@ -201,7 +201,7 @@ object CountManager {
     fun e(e: PlayerCommandPreprocessEvent) {
         val player = e.player
         if (!player.isOp) {
-            if (DungeonPlus.dungeonManager.isDungeonWorld(player.world)) {
+            if (DungeonPlus.dungeonManager.isCommonDungeonWorld(player.world)) {
                 if (e.message.contains("revive")) {
                     e.isCancelled = true
                     if (player.gameMode == GameMode.SPECTATOR) {
