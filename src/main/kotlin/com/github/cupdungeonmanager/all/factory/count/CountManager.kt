@@ -16,6 +16,7 @@ import taboolib.common.platform.Awake
 import taboolib.common.platform.event.SubscribeEvent
 import taboolib.common.platform.function.submitAsync
 import taboolib.common.util.sync
+import taboolib.module.chat.colored
 import taboolib.platform.util.sendActionBar
 import taboolib.platform.util.sendLang
 
@@ -108,8 +109,12 @@ object CountManager {
             val team = getTeamPlayer(player)
             if (player.gameMode == GameMode.SPECTATOR) {
                 when (e.keyType) {
-                    KeyType.KEY_LEFT -> {
-                        var newTarget: Player = team.first()
+                    KeyType.KEY_MLEFT -> {
+                        var newTarget: Player? = team.firstOrNull()
+                        if (newTarget == null) {
+                            player.sendTitle("", "&4无可观战队友".colored(), 10, 10, 10)
+                            return
+                        }
                         team.forEachIndexed { index, it ->
                             val target = it.spectatorTarget
                             if (target != null) {
@@ -123,11 +128,15 @@ object CountManager {
                             }
                         }
                         player.spectatorTarget = newTarget
-                        player.sendActionBar(newTarget.displayName)
+                        player.sendActionBar(newTarget!!.displayName)
                     }
 
-                    KeyType.KEY_RIGHT -> {
-                        var newTarget: Player = team.first()
+                    KeyType.KEY_MRIGHT -> {
+                        var newTarget: Player? = team.firstOrNull()
+                        if (newTarget == null) {
+                            player.sendTitle("", "&4无可观战队友".colored(), 10, 10, 10)
+                            return
+                        }
                         team.forEachIndexed { index, it ->
                             val target = it.spectatorTarget
                             if (target != null) {
@@ -141,7 +150,7 @@ object CountManager {
                             }
                         }
                         player.spectatorTarget = newTarget
-                        player.sendActionBar(newTarget.displayName)
+                        player.sendActionBar(newTarget!!.displayName)
                     }
 
                     KeyType.KEY_SPACE -> {

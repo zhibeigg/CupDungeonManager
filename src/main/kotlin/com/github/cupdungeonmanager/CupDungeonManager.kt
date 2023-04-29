@@ -23,9 +23,9 @@ object CupDungeonManager : Plugin() {
         say("&6CupDungeonManager!&a启动成功！&cby.zhi_bei")
         GermKeyAPI.registerKey(KeyType.KEY_SPACE)
         say("&6萌芽按键SPACE注册成功")
-        GermKeyAPI.registerKey(KeyType.KEY_LEFT)
+        GermKeyAPI.registerKey(KeyType.KEY_MLEFT)
         say("&6萌芽按键左键注册成功")
-        GermKeyAPI.registerKey(KeyType.KEY_RIGHT)
+        GermKeyAPI.registerKey(KeyType.KEY_MRIGHT)
         say("&6萌芽按键右键注册成功")
     }
 

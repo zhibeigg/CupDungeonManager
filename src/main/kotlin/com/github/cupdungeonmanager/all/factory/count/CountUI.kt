@@ -196,13 +196,9 @@ class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) 
                                         defaultLocation = true,
                                         force = true
                                     )
-                                    player.getNearbyEntities(1000.0, 1000.0, 1000.0).forEach {
-                                        if (it.getMetadata("team").getOrNull(0)?.asString() == player.name) {
-                                            player.teleport(it.location)
-                                            it.remove()
-                                            return@forEach
-                                        }
-                                    }
+                                    val entity = CountManager.playerData[player.name]?.mubei
+                                    entity?.let { player.teleport(it) }
+                                    entity?.remove()
                                     viewer.sendLang("use-count-team", viewer.displayName, player.displayName)
                                     getTeamPlayer().forEach {
                                         it.sendLang("use-count-team", viewer.displayName, player.displayName)
@@ -304,6 +300,7 @@ class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) 
         entity.setGravity(false)
         entity.customName = PlaceholderAPI.setPlaceholders(viewer, config.getString("name") ?: "%player_name% 的亡魂").colored()
         entity.setMeta("CupDungeonManager:Team", FixedMetadataValue(BukkitPlugin.getInstance(), viewer))
+        entity.isMarker = false
         entity.isInvulnerable = true
         if (viewer.gameMode == GameMode.SPECTATOR) {
             viewer.spectatorTarget = entity
