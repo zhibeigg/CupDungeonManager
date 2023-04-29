@@ -72,7 +72,7 @@ class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) 
 
     }
 
-    private var mubei: Entity? = null
+    var mubei: Entity? = null
 
     private val dungeon: Dungeon
         get() = DungeonPlus.dungeonManager.getDungeon(viewer)!!

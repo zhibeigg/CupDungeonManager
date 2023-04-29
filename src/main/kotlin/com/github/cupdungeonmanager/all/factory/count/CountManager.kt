@@ -110,7 +110,7 @@ object CountManager {
             if (player.gameMode == GameMode.SPECTATOR) {
                 when (e.keyType) {
                     KeyType.KEY_MLEFT -> {
-                        var newTarget: Player? = team.firstOrNull()
+                        var newTarget: Entity? = team.firstOrNull()
                         if (newTarget == null) {
                             player.sendTitle("", "&4无可观战队友".colored(), 10, 10, 10)
                             return
@@ -128,11 +128,11 @@ object CountManager {
                             }
                         }
                         player.spectatorTarget = newTarget
-                        player.sendActionBar(newTarget!!.displayName)
+                        player.sendActionBar(newTarget!!.name)
                     }
 
                     KeyType.KEY_MRIGHT -> {
-                        var newTarget: Player? = team.firstOrNull()
+                        var newTarget: Entity? = team.firstOrNull()
                         if (newTarget == null) {
                             player.sendTitle("", "&4无可观战队友".colored(), 10, 10, 10)
                             return
@@ -150,7 +150,7 @@ object CountManager {
                             }
                         }
                         player.spectatorTarget = newTarget
-                        player.sendActionBar(newTarget!!.displayName)
+                        player.sendActionBar(newTarget!!.name)
                     }
 
                     KeyType.KEY_SPACE -> {
