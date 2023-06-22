@@ -10,6 +10,7 @@ import org.bukkit.GameMode
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.event.player.*
+import org.bukkit.inventory.EquipmentSlot
 import org.serverct.ersha.dungeon.DungeonPlus
 import taboolib.common.LifeCycle
 import taboolib.common.platform.Awake
@@ -34,6 +35,10 @@ object CountManager {
 
     @Awake(LifeCycle.ACTIVE)
     fun load() {
+        move.clear()
+        playerData.clear()
+        noFreeRevive.clear()
+        freeRevive.clear()
         DungeonsReviveLimit.clear()
         DungeonsReviveFreeTimes.clear()
         DungeonPlus.contentManager.content.forEach { (_, dungeon) ->
@@ -166,12 +171,12 @@ object CountManager {
     }
 
     @SubscribeEvent
-    fun e(e: PlayerInteractEntityEvent) {
+    fun e(e: PlayerInteractAtEntityEvent) {
         val player = e.player
-        val world = player.world
         val manager = DungeonPlus.dungeonManager
-        if (manager.isCommonDungeonWorld(world)) {
-            debug(e.rightClicked.getMetadata("CupDungeonManager:Team").getOrNull(0)?.value().toString() + "|mubei")
+        val entity = e.rightClicked
+        if (manager.isCommonDungeonWorld(entity) && e.hand == EquipmentSlot.HAND && entity.hasMetadata("CupDungeonManager:Team")) {
+            debug(entity.getMetadata("CupDungeonManager:Team").getOrNull(0)?.value().toString() + "|mubei")
             val death = e.rightClicked.getMetadata("CupDungeonManager:Team").getOrNull(0)?.value() as? Player ?: return
             debug("${player}${death}, click mubei")
             if (player == death) {
@@ -180,28 +185,28 @@ object CountManager {
             }
             submitAsync {
                 move.remove(player)
-                player.sendTitle("请勿移动!等待三秒", "", 5, 10, 5)
+                player.sendTitle("&c请勿移动!等待三秒".colored(), "", 5, 10, 5)
                 Thread.sleep(1000)
                 if (move.contains(player)) {
-                    player.sendTitle("你移动了", "", 5, 10, 5)
+                    player.sendTitle("&4&l你移动了".colored(), "", 5, 10, 5)
                     move.remove(player)
-                    cancel()
+                    return@submitAsync
                 }
-                player.sendTitle("请勿移动!等待两秒", "", 5, 10, 5)
+                player.sendTitle("&c请勿移动!等待两秒".colored(), "", 5, 10, 5)
                 Thread.sleep(1000)
                 if (move.contains(player)) {
-                    player.sendTitle("你移动了", "", 5, 10, 5)
+                    player.sendTitle("&4&l你移动了".colored(), "", 5, 10, 5)
                     move.remove(player)
-                    cancel()
+                    return@submitAsync
                 }
-                player.sendTitle("请勿移动!等待一秒", "", 5, 10, 5)
+                player.sendTitle("&c请勿移动!等待一秒".colored(), "", 5, 10, 5)
                 Thread.sleep(1000)
                 if (move.contains(player)) {
-                    player.sendTitle("你移动了", "", 5, 10, 5)
+                    player.sendTitle("&4&l你移动了".colored(), "", 5, 10, 5)
                     move.remove(player)
-                    cancel()
+                    return@submitAsync
                 }
-                revive(death, e.rightClicked, player)
+                sync { revive(death, e.rightClicked, player) }
             }
         }
     }
@@ -222,8 +227,10 @@ object CountManager {
     }
 
     fun revive(death: Player, mubei: Entity, player: Player) {
+        death.spectatorTarget = null
         death.gameMode = GameMode.SURVIVAL
         death.teleport(mubei)
+        mubei.remove()
         DungeonPlus.teamManager.getTeam(player)?.players?.forEach {
             Bukkit.getPlayer(it)?.sendLang("team-help-other", death.displayName, player.displayName)
         }
