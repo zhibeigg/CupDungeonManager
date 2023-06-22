@@ -41,4 +41,11 @@ interface Storage {
     /**获取复活币数量**/
     fun getCount(player: Player) : Int
 
+    /**设置玩家的特殊墓碑**/
+    fun setMuBei(player: Player, special: String)
+
+    /**获取玩家的特殊墓碑**/
+    fun getMuBei(player: Player) : String
+
+
 }

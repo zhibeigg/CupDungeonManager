@@ -64,6 +64,17 @@ class StorageLocal : Storage {
         data.saveToFile(newFile(getDataFolder(), "/save/${player.uniqueId}.yml"))
     }
 
+    override fun setMuBei(player: Player, special: String) {
+        val data = getData(player)
+        data["MuBei"] = special
+        data.saveToFile(newFile(getDataFolder(), "/save/${player.uniqueId}.yml"))
+    }
+
+    override fun getMuBei(player: Player): String {
+        val data = getData(player)
+        return data.getString("MuBei") ?: ""
+    }
+
     fun setCount(number: Int, data: Configuration, name: String) {
         data["count"] = number
         data.saveToFile(newFile(getDataFolder(), "/save/${name}"))

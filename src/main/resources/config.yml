@@ -22,8 +22,8 @@ limit:
 
 #每日刷新复活币数量
 count: 1
-#坟墓的名字
-name: "%player_name% 的亡魂"
+#坟墓的名字 {特殊}将会自动替换玩家的特殊墓碑名
+name: "%player_name% 的墓碑 {特殊}"
 
 #地牢内玩家可以使用的免费复活次数 (未设置的副本则视为0):
 DungeonsReviveFreeTimes:

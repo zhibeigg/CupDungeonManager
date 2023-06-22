@@ -2,6 +2,7 @@ package com.github.cupdungeonmanager.all.factory.count
 
 import com.github.cupdungeonmanager.CupDungeonManager.config
 import com.github.cupdungeonmanager.CupDungeonManager.debug
+import com.github.cupdungeonmanager.all.api.CupDungeonManagerAPI
 import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
@@ -296,7 +297,7 @@ class CountUI(private val viewer: Player, var Revive: Int, var freeRevive: Int) 
         entity.isGlowing = true
         entity.isCustomNameVisible = true
         entity.setGravity(false)
-        entity.customName = PlaceholderAPI.setPlaceholders(viewer, config.getString("name") ?: "%player_name% 的亡魂").colored()
+        entity.customName = PlaceholderAPI.setPlaceholders(viewer, config.getString("name", "%player_name% 的墓碑")!!.replace("{特殊}", CupDungeonManagerAPI.getSpecialMuBei(viewer)).colored())
         entity.setMeta("CupDungeonManager:Team", viewer)
         entity.isMarker = false
         entity.isInvulnerable = true
