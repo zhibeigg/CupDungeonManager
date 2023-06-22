@@ -2,6 +2,7 @@ package com.github.cupdungeonmanager
 
 import com.germ.germplugin.api.GermKeyAPI
 import com.germ.germplugin.api.KeyType
+import eos.moe.dragoncore.api.CoreAPI
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import taboolib.common.platform.Plugin
@@ -19,14 +20,24 @@ object CupDungeonManager : Plugin() {
     override fun onEnable() {
         if (!enable("DungeonPlus")) disablePlugin()
         enable("PlaceholderAPI")
-        enable("GermPlugin")
+        if (enable("GermPlugin")) {
+            GermKeyAPI.registerKey(KeyType.KEY_SPACE)
+            say("&6萌芽按键SPACE注册成功")
+            GermKeyAPI.registerKey(KeyType.KEY_MLEFT)
+            say("&6萌芽按键左键注册成功")
+            GermKeyAPI.registerKey(KeyType.KEY_MRIGHT)
+            say("&6萌芽按键右键注册成功")
+        }
+        if (enable("DragonCore")) {
+            CoreAPI.registerKey("SPACE")
+            say("&6龙核按键SPACE注册成功")
+            CoreAPI.registerKey("MOUSE_LEFT")
+            say("&6龙核按键左键注册成功")
+            CoreAPI.registerKey("MOUSE_RIGHT")
+            say("&6龙核按键右键注册成功")
+        }
+
         say("&6CupDungeonManager!&a启动成功！&cby.zhi_bei")
-        GermKeyAPI.registerKey(KeyType.KEY_SPACE)
-        say("&6萌芽按键SPACE注册成功")
-        GermKeyAPI.registerKey(KeyType.KEY_MLEFT)
-        say("&6萌芽按键左键注册成功")
-        GermKeyAPI.registerKey(KeyType.KEY_MRIGHT)
-        say("&6萌芽按键右键注册成功")
     }
 
     //插件关闭时

@@ -26,8 +26,9 @@ taboolib {
             name("纸杯")
         }
         dependencies {
-            name("PlaceholderAPI").optional(true)
             name("GermPlugin").optional(true)
+            name("DragonCore").optional(true)
+            name("PlaceholderAPI")
             name("DungeonPlus")
         }
     }

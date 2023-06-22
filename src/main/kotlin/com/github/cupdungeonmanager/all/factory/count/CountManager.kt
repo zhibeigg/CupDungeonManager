@@ -5,6 +5,7 @@ import com.germ.germplugin.api.event.GermKeyDownEvent
 import com.github.cupdungeonmanager.CupDungeonManager.config
 import com.github.cupdungeonmanager.CupDungeonManager.debug
 import com.github.cupdungeonmanager.all.api.events.PluginReloadEvent
+import eos.moe.dragoncore.api.event.KeyPressEvent
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Entity
@@ -14,6 +15,7 @@ import org.bukkit.inventory.EquipmentSlot
 import org.serverct.ersha.dungeon.DungeonPlus
 import taboolib.common.LifeCycle
 import taboolib.common.platform.Awake
+import taboolib.common.platform.event.OptionalEvent
 import taboolib.common.platform.event.SubscribeEvent
 import taboolib.common.platform.function.submitAsync
 import taboolib.common.util.sync
@@ -106,8 +108,10 @@ object CountManager {
         }
     }
 
-    @SubscribeEvent
-    fun e(e: GermKeyDownEvent) {
+    //萌芽
+    @SubscribeEvent(bind = "com.germ.germplugin.api.event.GermKeyDownEvent")
+    fun germ(event: OptionalEvent) {
+        val e = event.get<GermKeyDownEvent>()
         val player = e.player
         val dp = DungeonPlus.dungeonManager
         if (dp.isCommonDungeonWorld(player.world)) {
@@ -159,6 +163,72 @@ object CountManager {
                     }
 
                     KeyType.KEY_SPACE -> {
+                        val ui = playerData[player.name] ?: CountUI(player, noFreeRevive[player.name] ?: 0, freeRevive[player.name] ?: 0)
+                        playerData[player.name] = ui
+                        ui.open()
+                    }
+
+                    else -> return
+                }
+            }
+        }
+    }
+
+    //龙核
+    @SubscribeEvent(bind = "eos.moe.dragoncore.api.event.KeyPressEvent")
+    fun dragon(event: OptionalEvent) {
+        val e = event.get<KeyPressEvent>()
+        val player = e.player
+        val dp = DungeonPlus.dungeonManager
+        if (dp.isCommonDungeonWorld(player.world)) {
+            val team = getTeamPlayer(player)
+            if (player.gameMode == GameMode.SPECTATOR) {
+                when (e.key) {
+                    "MOUSE_LEFT" -> {
+                        var newTarget: Entity? = team.firstOrNull()
+                        if (newTarget == null) {
+                            player.sendTitle("", "&4无可观战队友".colored(), 10, 10, 10)
+                            return
+                        }
+                        team.forEachIndexed { index, it ->
+                            val target = it.spectatorTarget
+                            if (target != null) {
+                                if (it.name == target.name) {
+                                    newTarget = if (index == 0) {
+                                        team.last()
+                                    } else {
+                                        team[index - 1]
+                                    }
+                                }
+                            }
+                        }
+                        player.spectatorTarget = newTarget
+                        player.sendActionBar(newTarget!!.name)
+                    }
+
+                    "MOUSE_RIGHT" -> {
+                        var newTarget: Entity? = team.firstOrNull()
+                        if (newTarget == null) {
+                            player.sendTitle("", "&4无可观战队友".colored(), 10, 10, 10)
+                            return
+                        }
+                        team.forEachIndexed { index, it ->
+                            val target = it.spectatorTarget
+                            if (target != null) {
+                                if (it.name == target.name) {
+                                    newTarget = if (index == team.size + 1) {
+                                        team.first()
+                                    } else {
+                                        team[index + 1]
+                                    }
+                                }
+                            }
+                        }
+                        player.spectatorTarget = newTarget
+                        player.sendActionBar(newTarget!!.name)
+                    }
+
+                    "SPACE" -> {
                         val ui = playerData[player.name] ?: CountUI(player, noFreeRevive[player.name] ?: 0, freeRevive[player.name] ?: 0)
                         playerData[player.name] = ui
                         ui.open()
